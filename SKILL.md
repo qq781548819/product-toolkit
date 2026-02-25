@@ -3,7 +3,7 @@ name: product-toolkit
 description: Product toolkit for PM workflows (think/user-story/prd/test-case/workflow etc.) with think vNext hard-switch rules.
 ---
 
-# Product Toolkit v3.2.0
+# Product Toolkit v3.2.1
 
 提供产品经理工作流工具集：需求澄清、用户故事、PRD、测试用例、技术方案与发布清单。
 
@@ -24,15 +24,34 @@ description: Product toolkit for PM workflows (think/user-story/prd/test-case/wo
 
 | 关键词 | 技能 | 说明 |
 |--------|------|------|
+| **基础技能** | | |
 | `ptk think` | `/product-toolkit:think` | 产品思考 vNext |
 | `ptk workflow` | `/product-toolkit:workflow` | 一键工作流 |
 | `ptk save` | `/product-toolkit:save` | 保存会话 |
 | `ptk resume` | `/product-toolkit:resume` | 恢复会话 |
+| **测试相关** | | |
+| `ptk auto-test` | `/product-toolkit:auto-test` | 自动化测试 |
+| `ptk 自动测试` | `/product-toolkit:auto-test` | 自动化测试（中文） |
+| `ptk test-case` | `/product-toolkit:test-case` | 生成测试用例 |
+| `ptk 测试用例` | `/product-toolkit:test-case` | 生成测试用例（中文） |
+| `ptk test-progress` | `/product-toolkit:test-progress` | 测试进度 |
+| `ptk 冒烟` | `/product-toolkit:auto-test -t smoke` | 冒烟测试 |
+| `ptk smoke` | `/product-toolkit:auto-test -t smoke` | 冒烟测试 |
+| **需求相关** | | |
+| `ptk user-story` | `/product-toolkit:user-story` | 用户故事 |
+| `ptk 用户故事` | `/product-toolkit:user-story` | 用户故事（中文） |
+| `ptk prd` | `/product-toolkit:prd` | 产品需求文档 |
+| `ptk 需求` | `/product-toolkit:prd` | 产品需求文档（中文） |
+| **其他技能** | | |
 | `ptk gate` | `/product-toolkit:gate` | 门控检查 |
 | `ptk status` | `/product-toolkit:status` | 状态面板 |
-| `ptk auto-test` | `/product-toolkit:auto-test` | 自动化测试 |
 | `ptk remember` | `/product-toolkit:remember` | 记忆知识 |
 | `ptk recall` | `/product-toolkit:recall` | 检索记忆 |
+| `ptk version` | `/product-toolkit:version` | 版本规划 |
+| `ptk roadmap` | `/product-toolkit:roadmap` | 产品路线图 |
+| `ptk persona` | `/product-toolkit:persona` | 用户画像 |
+| `ptk analyze` | `/product-toolkit:analyze` | 竞品分析 |
+| `ptk release` | `/product-toolkit:release` | 发布检查 |
 
 **触发规则：**
 - 显式调用 `/product-toolkit:xxx` 优先于关键词触发
@@ -317,7 +336,7 @@ docs/product/{version}/
 
 ---
 
-**版本**: v3.2.0
+**版本**: v3.2.1
 
 **更新日志**:
 - v3.1.0: 添加状态持久化系统 (.ptk/)、Soft-Gate门控、记忆系统、自动化测试

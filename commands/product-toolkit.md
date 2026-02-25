@@ -3,7 +3,7 @@ name: product-toolkit
 description: 通用产品经理工具集 - think vNext 规则先行硬切换版本
 ---
 
-# Product Toolkit v3.2.0
+# Product Toolkit v3.2.1
 
 [PRODUCT TOOLKIT ACTIVATED]
 
