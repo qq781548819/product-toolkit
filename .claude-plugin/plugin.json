@@ -1,6 +1,6 @@
 {
   "name": "product-toolkit",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "产品经理工作流工具集，包含用户故事、PRD、测试用例、优先级管理、用户画像、路线图、上线检查、竞品分析、技术方案等功能",
   "author": {
     "name": "Apple"

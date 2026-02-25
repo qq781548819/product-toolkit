@@ -340,6 +340,7 @@ docs/product/{version}/
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v3.2.0 | 2026-02-25 | 添加自动化测试 (auto-test) 子命令，支持 Web 端 agent-browser 自动化 |
 | v3.1.1 | 2026-02-25 | 添加 ptk 关键词触发机制（ptk think / ptk workflow 等） |
 | v3.1.0 | 2026-02-25 | 添加状态持久化系统(.ptk/)、Soft-Gate门控、记忆系统(remember/recall)、自动化测试(status面板) |
 | v3.0.1 | 2026-02-25 | 添加版本演进与测试回归系统（自动 patch+1、用户故事继承、测试进度跟踪、演进总结）|

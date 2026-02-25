@@ -3,7 +3,7 @@ name: product-toolkit
 description: Product toolkit for PM workflows (think/user-story/prd/test-case/workflow etc.) with think vNext hard-switch rules.
 ---
 
-# Product Toolkit v3.1.1
+# Product Toolkit v3.2.0
 
 提供产品经理工作流工具集：需求澄清、用户故事、PRD、测试用例、技术方案与发布清单。
 
@@ -30,6 +30,7 @@ description: Product toolkit for PM workflows (think/user-story/prd/test-case/wo
 | `ptk resume` | `/product-toolkit:resume` | 恢复会话 |
 | `ptk gate` | `/product-toolkit:gate` | 门控检查 |
 | `ptk status` | `/product-toolkit:status` | 状态面板 |
+| `ptk auto-test` | `/product-toolkit:auto-test` | 自动化测试 |
 | `ptk remember` | `/product-toolkit:remember` | 记忆知识 |
 | `ptk recall` | `/product-toolkit:recall` | 检索记忆 |
 
@@ -66,6 +67,7 @@ description: Product toolkit for PM workflows (think/user-story/prd/test-case/wo
 | `/product-toolkit:team [功能]` | 多代理协作 | `/product-toolkit:team 电商详情页` |
 | `/product-toolkit:workflow [功能]` | 一键产品工作流 | `/product-toolkit:workflow 电商收藏功能` |
 | `/product-toolkit:test-progress [版本]` | 测试进度记录 | `/product-toolkit:test-progress v1.0.0` |
+| `/product-toolkit:auto-test -v 版本 -f 功能` | 自动化 Web 测试 | `/product-toolkit:auto-test v1.0.0 -f 电商收藏` |
 | `/product-toolkit:evolution-summary [版本]` | 版本演进总结 | `/product-toolkit:evolution-summary v1.0.1` |
 | `/product-toolkit:save` | 保存会话状态到 .ptk/ | `/product-toolkit:save` |
 | `/product-toolkit:resume [session_id]` | 恢复会话状态 | `/product-toolkit:resume` |
@@ -315,7 +317,7 @@ docs/product/{version}/
 
 ---
 
-**版本**: v3.1.1
+**版本**: v3.2.0
 
 **更新日志**:
 - v3.1.0: 添加状态持久化系统 (.ptk/)、Soft-Gate门控、记忆系统、自动化测试
