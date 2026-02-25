@@ -1,97 +1,117 @@
 ---
 name: think
-description: Use when user wants to do product thinking, socratic questioning, or analyze requirements - provides structured 5-round questioning framework for deep requirements discovery
-argument-hint: "<feature or problem>"
+description: Use when user needs vNext product thinking with batch Q&A, dynamic follow-up, conflict detection, per-round auto-summary, and open-question ledger output
 ---
 
-# 产品思考 - 苏格拉底式追问
+# 产品思考（think vNext）
 
-通过 5 轮结构化追问，深入挖掘需求本质，发现遗漏和假设。
+> **Hard Switch**：本技能已切换到 vNext 规则；旧版固定 `Q1-Q24` 题库不再作为执行规范。
 
 ## 使用方式
 
-```
+```bash
 /product-toolkit:think [功能或问题描述]
 ```
 
 例如：`/product-toolkit:think 我想做社区点赞功能`
 
-## 追问框架
+---
 
-### 第一轮：澄清问题 (4-5 个问题)
+## 1) think vNext canonical rule spec
 
-请回答以下问题（可选择选项或自定义回答）：
+### 1.1 批量问答策略（Batch Policy）
+- 每轮问题数：`3-5` 题
+- 动态追问深度上限：`2` 层（针对同一未决点）
+- 单会话总问题上限：`20` 题
+- 每轮必须输出自动摘要并更新未决问题清单
 
-| # | 问题 | 选项 |
-|---|------|------|
-| Q1 | 这个功能解决什么问题？ | A.效率 B.认知 C.情感 D.痛点 E.新机会 |
-| Q2 | 目标用户是谁？ | A.消费者 B.创作者 C.商家 D.管理员 E.混合 |
-| Q3 | 用户在什么场景下使用？ | A.碎片 B.专注 C.工作 D.生活 |
-| Q4 | 用户现在怎么解决？ | A.竞品 B.替代 C.线下 D.凑合 E.无方案 |
-| Q5 | 为什么现在做？ | A.时机 B.压力 C.呼声 D.需求 |
+### 1.2 动态追问触发器（Dynamic Follow-up Triggers）
+出现以下任一情况，必须触发追问：
+1. **信息缺失**：mandatory 字段未回答或回答不可判定
+2. **上下文冲突**：本轮答案与前文答案在目标/边界/约束上冲突
+3. **高风险未证实**：关键假设缺乏证据支持
+4. **边界不闭环**：角色、权限、频次、异常路径、回滚路径不完整
 
-### 第二轮：探索假设 (3-4 个问题)
-
-| # | 问题 | 选项 |
-|---|------|------|
-| Q6 | 不做这个功能会怎样？ | A.流失 B.不完整 C.受损 D.影响 E.无影响 |
-| Q7 | 我们假设了什么？ | [多选]用户愿用/需求真实/竞品没做好/技术可行 |
-| Q8 | 最大的风险是什么？ | A.技术 B.市场 C.运营 D.竞争 |
-| Q9 | 做这个功能的目标是什么？ | 自定义回答 |
-
-### 第三轮：用户故事边界 (5-6 个问题)
-
-> **关键**：直接影响用户故事的验收标准
-
-| # | 问题 | 选项 | 影响用户故事 |
-|---|------|------|-------------|
-| Q10 | 哪些角色可以使用？ | A.所有登录 B.指定角色 C.特定条件 D.付费 | Actor |
-| Q11 | 什么情况下不能用？ | A.未登录 B.异常 C.限制 D.频次 | 前置条件 |
-| Q12 | 操作有次数限制吗？ | A.无 B.每日N次 C.每周N次 D.总计N次 | 边界校验 |
-| Q13 | 数据从哪里来？到哪里去？ | 自定义回答 | 功能范围 |
-| Q14 | 需要权限控制吗？ | A.不需要 B.登录 C.角色 D.权限 | 权限验收 |
-| Q15 | 操作可以撤销/回退吗？ | A.可撤销 B.不可 C.有时效 | 逆向流程 |
-
-### 第四轮：验收标准 (4-5 个问题)
-
-> **关键**：直接影响 QA 测试用例生成
-
-| # | 问题 | 选项 | QA 用例 |
-|---|------|------|---------|
-| Q16 | 成功是什么样子？ | 自定义回答 | 功能测试 |
-| Q17 | 失败是什么样子？ | A.提示 B.静默 C.阻断 | 异常测试 |
-| Q18 | 边界在哪里？ | 自定义回答 | 边界测试 |
-| Q19 | 用户怎么知道成功了？ | A.跳转 B.状态 C.Toast D.通知 | UI测试 |
-| Q20 | 响应时间要求？ | A.<1秒 B.<3秒 C.异步 D.无要求 | 性能测试 |
-
-### 第五轮：评估影响 (3-4 个问题)
-
-| # | 问题 | 内容 |
-|---|------|------|
-| Q21 | 对其他功能有什么影响？ | 依赖/冲突/辅助 |
-| Q22 | 上线后怎么看效果？ | 衡量指标 |
-| Q23 | 数据从哪里获取？ | 已有/埋点/问卷 |
-| Q24 | 回滚方案是什么？ | 回滚方案 |
-
-## 输出
-
-产品思考答案将作为后续命令的输入：
-- `/product-toolkit:user-story` - 生成用户故事
-- `/product-toolkit:test-case` - 生成测试用例
-- `/product-toolkit:prd` - 生成 PRD
-
-## 参考
-
-- `../../references/socratic-questioning.md` - 完整追问框架
+### 1.3 收敛停止条件（Convergence Stop Conditions）
+满足以下条件可结束会话：
+- mandatory 字段已闭环，或已显式登记为 `hypothesis + open question`
+- 无 `critical/high` 且未解决的冲突
+- 无 `blocking=true` 且 `status=open` 的未决问题
+- 用户确认可结束，或达到问题上限后进入强制收敛输出
 
 ---
 
-## 输出目录
+## 2) Conflict taxonomy + severity + action matrix
 
-工作流模式下输出到: `docs/product/{version}/{category}/{feature}.md`
+| 冲突类型 | 说明 | 典型信号 |
+|---|---|---|
+| 语义冲突（semantic） | 同一事实被给出互斥描述 | “必须实时” vs “可异步” |
+| 边界冲突（boundary） | 角色/权限/频次/范围冲突 | “游客可用” vs “必须登录” |
+| 目标冲突（goal） | 业务目标互相掣肘 | “提升转化” vs “减少打扰” |
+| 约束冲突（constraint） | 合规/技术/资源约束冲突 | “本周上线” vs “依赖未就绪” |
 
-- 用户故事: `docs/product/{version}/user-story/`
-- PRD: `docs/product/{version}/prd/`
-- UI设计: `docs/product/{version}/design/`
-- 测试用例: `docs/product/{version}/qa/test-cases/`
-- 技术方案: `docs/product/{version}/tech/`
+| 严重度 | 处理动作 | 下游影响 |
+|---|---|---|
+| critical | 立即追问 + 标记阻塞 | 必须 Blocked |
+| high | 本轮优先追问 + 标记阻塞 | 默认 Blocked |
+| medium | 下一轮追问 + 风险记录 | 可 Warn 继续 |
+| low | 记录观察 + 可选追问 | 可继续 |
+
+---
+
+## 3) Per-round auto-summary template
+
+每轮结束必须产出以下模板：
+
+```markdown
+## Round {n} Summary
+- Confirmed Facts:
+- Assumptions (Hypotheses):
+- Conflicts Detected:
+- Open Questions (added/updated/closed):
+- Next Round Goal:
+```
+
+---
+
+## 最终输出契约（用于下游衔接）
+
+最终输出必须包含：
+1. 人类可读 Markdown 总结
+2. 可解析结构化块（YAML）
+
+```yaml
+think_vnext_output:
+  session:
+    rounds: 0
+    total_questions: 0
+    convergence: converged|forced_stop
+  confirmed_facts: []
+  assumptions: []
+  conflicts: []
+  open_questions: []
+  downstream_handoff:
+    user_story_inputs: []
+    prd_inputs: []
+    test_case_inputs: []
+    workflow_gates: []
+```
+
+---
+
+## mandatory 字段规则
+
+以下字段缺失时不得静默推断：
+- 目标用户/角色
+- 目标问题与业务目标
+- 成功判定标准
+- 关键边界（权限/限制/异常）
+
+如确需暂存推断，必须显式标注 `hypothesis` 并写入 `open_questions`。
+
+---
+
+## 参考
+
+- `../../references/socratic-questioning.md`（vNext 主规范）
+

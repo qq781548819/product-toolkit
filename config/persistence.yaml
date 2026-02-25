@@ -1,0 +1,48 @@
+# Persistence Configuration
+# Configuration for product-toolkit state persistence
+
+## State Directory
+state_dir: .ptk/state
+
+## Memory Directory
+memory_dir: .ptk/memory
+
+## Cache Directory
+cache_dir: .ptk/cache
+
+## Auto-save Settings
+auto_save:
+  enabled: true
+  interval_seconds: 60
+  on_phase_complete: true
+
+## Session Management
+session:
+  track_history: true
+  max_history_count: 10
+  resume_enabled: true
+
+## Gate Configuration
+gate:
+  # Soft-Gate: Block by default, allow force override
+  mode: soft  # soft | hard | disabled
+  warn_on_force: true
+  log_risks: true
+
+## Memory Configuration
+memory:
+  # Project insights persistence
+  insights:
+    enabled: true
+    auto_inject: true
+    inject_phases: ["think", "prd"]
+
+  # Decisions tracking
+  decisions:
+    enabled: true
+    max_count: 100
+
+  # Vocabulary
+  vocabulary:
+    enabled: true
+    auto_learning: true

@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Think Progress Schema",
+  "description": "Schema for think vNext session progress persistence",
+  "type": "object",
+  "required": ["session_id", "feature", "current_round", "convergence_status", "last_updated"],
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Unique session identifier (UUID)"
+    },
+    "feature": {
+      "type": "string",
+      "description": "Feature name being discussed"
+    },
+    "current_round": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Current round number"
+    },
+    "total_rounds": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Expected total rounds (optional, determined dynamically)"
+    },
+    "convergence_status": {
+      "type": "string",
+      "enum": ["in_progress", "converged", "blocked", "abandoned"],
+      "description": "Current convergence status"
+    },
+    "confirmed_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "fact", "source_round"],
+        "properties": {
+          "id": {"type": "string"},
+          "fact": {"type": "string"},
+          "source_round": {"type": "integer"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "severity", "status"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string", "enum": ["semantic", "boundary", "goal", "constraint"]},
+          "severity": {"type": "string", "enum": ["critical", "high", "medium", "low"]},
+          "evidence": {"type": "string"},
+          "action": {"type": "string"},
+          "status": {"type": "string", "enum": ["open", "resolved", "accepted_risk"]}
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "priority", "blocking"],
+        "properties": {
+          "id": {"type": "string"},
+          "question": {"type": "string"},
+          "reason": {"type": "string"},
+          "source_round": {"type": "integer"},
+          "priority": {"type": "string", "enum": ["critical", "high", "medium", "low"]},
+          "blocking": {"type": "boolean"},
+          "owner": {"type": "string"},
+          "close_criteria": {"type": "string"},
+          "status": {"type": "string", "enum": ["open", "answered", "deferred"]}
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "assumption": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "validated": {"type": "boolean"}
+        }
+      }
+    },
+    "round_summaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "round": {"type": "integer"},
+          "confirmed_facts_delta": {"type": "array"},
+          "conflicts_delta": {"type": "array"},
+          "open_questions_delta": {"type": "array"},
+          "next_round_focus": {"type": "string"}
+        }
+      }
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp"
+    }
+  }
+}

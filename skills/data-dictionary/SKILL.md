@@ -1,7 +1,6 @@
 ---
 name: data-dictionary
 description: Use when user wants to define data models and fields - provides data dictionary template with schema, constraints, and index strategy
-argument-hint: "<feature or module>"
 ---
 
 # 数据字典

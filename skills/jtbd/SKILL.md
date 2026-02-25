@@ -1,7 +1,6 @@
 ---
 name: jtbd
 description: Use when user wants to apply Jobs-to-be-Done framework - analyzes what job user is trying to accomplish and what progress they seek
-argument-hint: "<product or service>"
 ---
 
 # JTBD 用户任务理论

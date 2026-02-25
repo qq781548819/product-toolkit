@@ -1,0 +1,55 @@
+# Product Toolkit Version Strategy Configuration
+# Version: 1.0.0
+
+# 默认版本推进规则
+default_bump: patch  # 不指定时默认 patch+1
+
+# 版本号推进映射
+bump_mappings:
+  patch:
+    increment: patch
+    description: 热修复，Bug修复、小优化
+    example: "1.0.0 → 1.0.1"
+  minor:
+    increment: minor
+    description: 新增功能（向下兼容）
+    example: "1.0.0 → 1.1.0"
+  major:
+    increment: major
+    description: 破坏性变更
+    example: "1.0.0 → 2.0.0"
+
+# 版本号校验规则
+validation:
+  pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+  min_major: 0
+  min_minor: 0
+  min_patch: 0
+  max_major: 999
+
+# 用户故事继承规则
+user_story_inheritance:
+  default_status: "[INHERITED]"
+  allowed_statuses:
+    - "[NEW]"
+    - "[INHERITED]"
+    - "[MODIFIED]"
+    - "[DEPRECATED]"
+    - "[COMPLETED]"
+
+# 测试用例标识规则
+test_case_tags:
+  smoke: "[SMOKE]"
+  regression: "[REGRESSION]"
+  new_feature: "[NEW]"
+  fix_verification: "[FIX]"
+
+# 输出目录结构
+output_structure:
+  version_dir: "docs/product/{version}"
+  summary: "SUMMARY.md"
+  changelog: "CHANGELOG.md"
+  test_progress: "test-progress.md"
+  user_story: "user-story/{feature}.md"
+  prd: "prd/{feature}.md"
+  test_case: "qa/test-cases/{feature}.md"

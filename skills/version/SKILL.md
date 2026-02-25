@@ -1,7 +1,6 @@
 ---
 name: version
 description: Use when user wants to plan product versions, roadmap iterations, or release planning - provides structured version planning with user stories breakdown
-argument-hint: "<feature>"
 ---
 
 # 版本规划
@@ -11,10 +10,97 @@ argument-hint: "<feature>"
 ## 使用方式
 
 ```
-/product-toolkit:version [功能]
+/product-toolkit:version [功能]                    # 自动 patch+1
+/product-toolkit:version --bump=minor [功能]        # minor+1
+/product-toolkit:version --bump=major [功能]        # major+1
+/product-toolkit:version --version=1.2.3 [功能]    # 手动指定版本
 ```
 
-例如：`/product-toolkit:version 电商收藏功能`
+例如：
+- `/product-toolkit:version 电商收藏功能` → v1.0.0 → v1.0.1 (自动 patch+1)
+- `/product-toolkit:version --bump=minor 电商收藏` → v1.0.0 → v1.1.0
+- `/product-toolkit:version --bump=major 电商收藏` → v1.0.0 → v2.0.0
+- `/product-toolkit:version --version=2.0.0 电商收藏` → v2.0.0
+
+## 版本号推进规则
+
+### 默认行为（自动热修复）
+
+不指定版本推进方式时，默认 **patch+1**：
+
+| 当前版本 | 推进后 | 类型 | 适用场景 |
+|----------|--------|------|----------|
+| 1.0.0 | 1.0.1 | patch | Bug修复、小优化 |
+| 1.1.0 | 1.1.1 | patch | Bug修复 |
+| 2.0.0 | 2.0.1 | patch | 热修复 |
+
+### 手动指定推进方式
+
+| 参数 | 推进 | 示例 | 适用场景 |
+|------|------|------|----------|
+| `--bump=minor` | minor+1 | 1.0.0 → 1.1.0 | 新增功能（向下兼容）|
+| `--bump=major` | major+1 | 1.0.0 → 2.0.0 | 破坏性变更 |
+| `--version=x.y.z` | 手动指定 | 任意版本 | 特殊版本要求 |
+
+## 用户故事继承规则
+
+### 状态标识
+
+| 标识 | 含义 | 使用场景 |
+|------|------|----------|
+| `[NEW]` | 新增 | 当前版本新创建的用户故事 |
+| `[INHERITED]` | 继承 | 从上一版本自动继承（默认）|
+| `[MODIFIED]` | 变更 | 继承后有功能修改 |
+| `[DEPRECATED]` | 废弃 | 当前版本不再实现 |
+| `[COMPLETED]` | 完成 | 已完成，可回归验证 |
+
+### 继承逻辑
+
+```
+新版本用户故事 = 上一版本用户故事 (标记为 [INHERITED])
+                + 当前版本新增 (标记为 [NEW])
+                + 当前版本修改 (标记为 [MODIFIED])
+                - 当前版本废弃 (标记为 [DEPRECATED])
+```
+
+### 继承示例
+
+**v1.0.0 用户故事**:
+```markdown
+## US-0001: 用户可以收藏商品
+
+**版本**: v1.0.0
+**优先级**: Must
+**状态**: [NEW]
+
+作为普通用户，我希望能够收藏商品...
+```
+
+**v1.0.1 用户故事** (继承):
+```markdown
+## US-0001: 用户可以收藏商品
+
+**版本**: v1.0.1
+**优先级**: Must
+**状态**: [INHERITED] (from v1.0.0)
+
+作为普通用户，我希望能够收藏商品...
+```
+
+**v1.1.0 用户故事** (新增+继承):
+```markdown
+## US-0001: 用户可以收藏商品
+
+**版本**: v1.1.0
+**状态**: [INHERITED] (from v1.0.1)
+
+## US-0002: 批量收藏
+
+**版本**: v1.1.0
+**状态**: [NEW]
+
+作为普通用户，我希望批量收藏商品...
+```
 
 ## 工作流
 
@@ -124,6 +210,8 @@ argument-hint: "<feature>"
 
 - `../../references/product-versioning.md` - 产品版本迭代规划
 - `../../references/sprint-planning.md` - Sprint 规划
+- `../../references/user-story-inheritance.md` - 用户故事继承规则
+- `../../config/version-strategy.yaml` - 版本策略配置
 
 ---
 

@@ -1,7 +1,6 @@
 ---
 name: roadmap
 description: Use when user wants to create product roadmap - provides structured roadmap template with phases, milestones, and feature timeline
-argument-hint: "[product or initiative]"
 ---
 
 # 产品路线图

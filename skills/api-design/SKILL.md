@@ -1,7 +1,6 @@
 ---
 name: api-design
 description: Use when user wants to design APIs for a feature - provides RESTful API design template including endpoints, request/response contracts, and error handling
-argument-hint: "<feature or module>"
 ---
 
 # API 设计

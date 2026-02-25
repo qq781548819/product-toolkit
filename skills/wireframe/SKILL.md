@@ -1,7 +1,6 @@
 ---
 name: wireframe
 description: Use when user wants to generate wireframes, mockups, or visual descriptions for UI - provides wireframe structure and layout descriptions
-argument-hint: "<feature or page>"
 ---
 
 # UI 草稿图与线框图

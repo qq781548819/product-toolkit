@@ -1,5 +1,5 @@
 # Product Toolkit Workflow Configuration
-# Version: 3.0.0
+# Version: 3.0.1
 
 # Workflow templates for different scenarios
 workflows:
@@ -17,7 +17,10 @@ workflows:
       - ui-spec
       - user-story
       - prd
+      - api-design
+      - data-dictionary
       - test-case
+      - release
       - team
 
   iteration:
@@ -28,7 +31,11 @@ workflows:
       - think
       - version
       - user-story
+      - prd
+      - api-design
+      - data-dictionary
       - test-case
+      - release
       - team
 
   competitor:
@@ -38,7 +45,13 @@ workflows:
     commands:
       - analyze
       - think
+      - version
+      - user-story
       - prd
+      - api-design
+      - data-dictionary
+      - test-case
+      - release
 
   mvp:
     name: MVP快速验证工作流
@@ -48,7 +61,10 @@ workflows:
       - think
       - user-story
       - prd
+      - api-design
+      - data-dictionary
       - test-case
+      - release
 
 # Product platform templates
 platforms:
@@ -91,3 +107,4 @@ output_structure:
   qa: qa/test-cases/
   tech_api: tech/api/
   tech_data_model: tech/data-model/
+  release: release/

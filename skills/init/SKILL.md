@@ -1,7 +1,6 @@
 ---
 name: init
 description: Use when user wants to initialize product documentation structure - creates baseline docs/product directories and config from templates
-argument-hint: "[project name]"
 ---
 
 # 初始化项目配置

@@ -1,7 +1,6 @@
 ---
 name: release
 description: Use when user wants to create release checklist - provides comprehensive release checklist covering deployment, verification, monitoring, and rollback
-argument-hint: "<version>"
 ---
 
 # 上线检查清单
@@ -30,17 +29,22 @@ argument-hint: "<version>"
 
 ## 1. 功能验收
 
-### 1.1 功能测试通过
+### 1.1 冒烟测试（发布阻断）
+| 核心路径 | 结果 | 测试人 | 日期 |
+|---------|------|--------|------|
+| {smoke_path} | PASS | {name} | {date} |
+
+### 1.2 功能测试通过
 | 功能 | 测试结果 | 测试人 | 日期 |
 |------|---------|--------|------|
 | {feature} | PASS | {name} | {date} |
 
-### 1.2 回归测试
+### 1.3 回归测试
 | 模块 | 测试结果 | 测试人 | 日期 |
 |------|---------|--------|------|
 | {module} | PASS | {name} | {date} |
 
-### 1.3 验收签字
+### 1.4 验收签字
 - [ ] PM 验收: {name} / {date}
 - [ ] 设计验收: {name} / {date}
 - [ ] QA 验收: {name} / {date}

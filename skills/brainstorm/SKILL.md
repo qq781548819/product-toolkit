@@ -1,7 +1,6 @@
 ---
 name: brainstorm
 description: Use when user wants to do brainstorming, divergent thinking, or explore ideas freely - provides 7-dimension exploration framework for comprehensive idea generation
-argument-hint: "<topic>"
 ---
 
 # 发散思维 - 网状思维

@@ -1,90 +1,96 @@
 ---
 name: product-toolkit
-description: 通用产品经理工具集 - 支持产品思考、PRD/用户故事/测试用例、UI/技术方案与一键工作流
+description: 通用产品经理工具集 - think vNext 规则先行硬切换版本
 ---
 
-# Product Toolkit v3.0.0
+# Product Toolkit v3.0.1
 
 [PRODUCT TOOLKIT ACTIVATED]
+
+## 🚨 Breaking Change
+
+`/product-toolkit:think` 已切换为 **think vNext**：
+
+- 批量交互（非固定题库）
+- 上下文动态追问
+- 冲突检测
+- 每轮自动摘要
+- 未决问题清单（open questions ledger）
+
+旧版“固定轮次 / 固定题数”语义已下线。
+
+---
 
 ## 子命令
 
 | 命令 | 功能 | 输出文件 |
-|------|------|---------|
-| `/product-toolkit` | 主工具集 | - |
+|---|---|---|
+| `/product-toolkit` | 主工具集入口 | - |
 | `/product-toolkit:init` | 初始化配置 | `docs/product/config.yaml` |
 | `/product-toolkit:workflow` | 一键产品工作流 | `docs/product/{version}/` |
-| `/product-toolkit:think` | 产品思考（5轮追问） | 作为后续命令输入 |
+| `/product-toolkit:think` | 产品思考 vNext（批量+动态追问+冲突检测） | 下游命令输入 |
 | `/product-toolkit:brainstorm` | 发散思维 | `docs/product/{version}/SUMMARY.md` |
 | `/product-toolkit:design` | Design Thinking | `docs/product/{version}/design/` |
 | `/product-toolkit:jtbd` | JTBD 分析 | `docs/product/{version}/SUMMARY.md` |
 | `/product-toolkit:version` | 版本规划 | `docs/product/{version}/SUMMARY.md` |
 | `/product-toolkit:wireframe` | 草稿图/线框图 | `docs/product/{version}/design/wireframe/{feature}.md` |
 | `/product-toolkit:ui-spec` | UI 设计规范 | `docs/product/{version}/design/spec/{feature}.md` |
-| `/product-toolkit:user-story` | 生成用户故事 | `docs/product/{version}/user-story/{feature}.md` |
-| `/product-toolkit:prd` | 生成 PRD | `docs/product/prd/{feature}.md` |
-| `/product-toolkit:test-case` | 生成测试用例（含 UI 可视化测试门槛） | `docs/product/{version}/qa/test-cases/{feature}.md` |
+| `/product-toolkit:user-story` | 用户故事 | `docs/product/{version}/user-story/{feature}.md` |
+| `/product-toolkit:prd` | PRD | `docs/product/prd/{feature}.md` |
+| `/product-toolkit:test-case` | 测试用例（含 Smoke/New/Regression + UI 可视化 Gate） | `docs/product/{version}/qa/test-cases/{feature}.md` |
 | `/product-toolkit:api-design` | API 设计 | `docs/product/{version}/tech/api/{feature}.md` |
 | `/product-toolkit:data-dictionary` | 数据字典 | `docs/product/{version}/tech/data-model/{feature}.md` |
 | `/product-toolkit:moscow` | MoSCoW 优先级 | `docs/product/{version}/SUMMARY.md` |
 | `/product-toolkit:kano` | KANO 模型分析 | `docs/product/{version}/SUMMARY.md` |
 | `/product-toolkit:persona` | 用户画像 | `docs/product/personas/{name}.md` |
-| `/product-toolkit:roadmap` | 产品路线图 | `docs/product/roadmap.md` |
+| `/product-toolkit:roadmap` | 路线图 | `docs/product/roadmap.md` |
 | `/product-toolkit:release` | 上线检查 | `docs/product/release/v{version}.md` |
 | `/product-toolkit:analyze` | 竞品分析 | `docs/product/competitors/{name}.md` |
 | `/product-toolkit:team` | 多代理协作 | `docs/product/{version}/` |
 
-## 输出目录
+---
 
-工作流模式输出到 `docs/product/{version}/`：
+## think vNext 入口契约（摘要）
 
-```
-docs/product/{version}/
-├── SUMMARY.md
-├── prd/
-├── user-story/
-├── design/wireframe/
-├── design/spec/
-├── qa/test-cases/
-├── tech/api/
-└── tech/data-model/
-```
+- 批量交互（每轮一批问题）
+- 动态追问（缺失信息 / 冲突信息 / 高风险未证实 / 边界未闭环）
+- 每轮自动摘要（confirmed facts / assumptions / conflicts / open questions）
+- 未决问题 ledger 驱动下游阻塞语义（`blocking=true` 未关闭 => `Blocked`）
 
-## 功能概览
+---
 
-- 一键工作流（场景路由 + 自动编排）
-- 用户故事生成（7维度验收标准，含权限与逆向流程）
-- PRD 编写（完整/快速模板）
-- 测试用例生成（自动从验收标准产出）
-- Web UI 可视化测试门槛（agent-browser/browser-use + 登录 + 截图 + Console + API 200）
-- 技术方案（API + 数据字典）
-- 需求优先级（MoSCoW / KANO）
-- 用户画像生成
-- 产品路线图
-- 上线检查清单
-- 竞品分析
-- 多代理协作
+## Open Questions Triage Gate（先做）
 
-## UI 可视化测试强制要求（适用于 Web 前端）
+执行 hard switch 前，先在 `.omx/plans/open-questions.md` 完成 think vNext 条目“关闭或 triage”。
 
-- 使用 `agent-browser` 或 `browser-use` 执行浏览器测试。
-- 从登录流程开始验证，并记录所用测试账号/角色（仅可由用户提供）。
-- 对关键步骤截图，验证数据绑定和页面排版。
-- 检查 Console 无未处理错误。
-- 检查关键接口请求状态为 HTTP 200。
-- 输出 AC→TC 覆盖矩阵，确认用户故事验收标准全覆盖。
-- 凭据仅可由用户提供并脱敏记录，禁止在仓库中写入明文账号密码。
+最少满足：
 
-> 任一项缺失时，测试结论必须标记为 `Blocked` 或不可交付。
+1. 每条未决项都有 `blocking` 判定。
+2. 每条未决项都有 `owner` 与 `close_criteria`。
+3. 阻塞项未关闭时，`/product-toolkit:workflow` 结论必须为 `Blocked`。
 
-## 快速开始
+---
 
-```
-/product-toolkit:workflow 用户登录功能
-/product-toolkit:prd 用户登录
-/product-toolkit:test-case 用户登录
+## Cutover Checklist
+
+- [ ] 三个入口文件已同步（`SKILL.md` / `commands/product-toolkit.md` / `README.md`）
+- [ ] 已删除旧版固定题库口径
+- [ ] 已保留 think vNext 关键词与契约章节
+- [ ] 已明确 `Blocked` 判定
+- [ ] 已记录 breaking change
+
+---
+
+## 一致性验证（推荐）
+
+```bash
+rg -n "think vNext|动态追问|冲突检测|每轮自动摘要|未决问题|Hard Switch|Breaking Change|Blocked" \
+  product-toolkit/SKILL.md product-toolkit/commands/product-toolkit.md product-toolkit/README.md
+
+rg -n "<legacy-fixed-round-pattern>|<legacy-compat-pattern>" \
+  product-toolkit/SKILL.md product-toolkit/commands/product-toolkit.md product-toolkit/README.md
 ```
 
 ---
 
-*持续迭代更新，统一输出到 docs/product/{version}/ 目录*
+*规则先行。一次切换。无旧流程兼容层。*

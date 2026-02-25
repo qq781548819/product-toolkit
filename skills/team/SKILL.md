@@ -1,7 +1,6 @@
 ---
 name: team
 description: Use when user wants multi-agent collaboration for product development - coordinates Product PM, UI Designer, QA Engineer, and Tech Lead roles to generate complete product packages. Supports multiple AI agents (Claude, OpenCLAW, OpenCode, Codex).
-argument-hint: "<feature>"
 ---
 
 # 多代理团队协作

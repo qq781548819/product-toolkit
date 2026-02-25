@@ -1,7 +1,6 @@
 ---
 name: analyze
 description: Use when user wants to conduct competitor analysis - provides structured competitive analysis template covering features, positioning, and strategy
-argument-hint: "<competitor or product>"
 ---
 
 # 竞品分析

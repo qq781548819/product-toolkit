@@ -1,279 +1,152 @@
 ---
 name: test-case
-description: Use when user wants to generate QA test cases from user stories - provides comprehensive test case coverage
-argument-hint: "<feature or module>"
+description: Use when user wants to generate QA test cases from think vNext/user-story/prd outputs with strict Pass/Fail/Blocked semantics
 ---
 
-# 测试用例
+# 测试用例（think vNext Hard Switch）
 
-从用户故事生成完整的 QA 测试用例。
-
-当功能属于可视化 Web 前端 UI 时，测试用例必须升级为“可执行验证包”：通过 `agent-browser` / `browser-use` 实际运行，从登录开始、截图核验 UI、检查 Console 和 API 状态，并完成 AC→TC 全覆盖后方可交付。
+从 `think vNext` + `user-story` + `prd` 生成可执行 QA 测试包。
 
 ## 使用方式
 
-```
+```bash
 /product-toolkit:test-case [功能]
 ```
 
 例如：`/product-toolkit:test-case 登录功能`
 
-## UI 可视化测试前置补充（强制，Web 前端）
+---
 
-当用户故事包含可视化 Web UI 时，生成与执行测试用例时必须遵循：
+## 输入契约与前置 Gate
 
-1. 通过 `agent-browser` 或 `browser-use` 启动并运行 Web 测试。
-2. 从登录页开始执行，账号/凭据/权限映射仅可由用户提供。
-3. 对关键步骤进行截图，确认数据绑定正确、页面排版正常。
-4. 打开浏览器 Console，确认无未处理错误。
-5. 核查关键 API 请求状态码均为 HTTP 200。
-6. 建立 AC→TC 覆盖矩阵，确保用户故事验收标准 100% 覆盖。
-7. 任一项失败、缺失或账号不足时，结论必须标记为 `Blocked`（不可交付）。
+### Gate 0：输入完整性
 
-## 测试用例模板
+必须具备：
+
+- think vNext 标准信封（见 `../../references/user-story-mapping.md`）
+- 用户故事（含 7 维 AC）
+- PRD（含范围、风险、回滚）
+
+必填字段缺失 ⇒ `Blocked`。
+
+### Gate 1：冲突与未决判定（Block vs Warn）
+
+- `critical/high` 未解决冲突 ⇒ `Blocked`
+- `open_question.blocking=true` 未关闭 ⇒ `Blocked`
+- `medium/low` 未解决冲突 ⇒ `Warn`（继续执行并保留风险）
+
+### Gate 2：AC→TC 映射完整性
+
+- 阻塞级 AC 必须有对应 TC
+- 目标覆盖率：100%
+- 不满足时：`Blocked`
+
+---
+
+## 多平台可视化 Gate（可视化功能强制）
+
+### A. Web
+
+1. 使用 `agent-browser` 或 `browser-use`。
+2. 从登录页开始（账号/权限映射仅由用户提供）。
+3. 关键步骤截图，核验数据绑定与布局。
+4. Console 无阻断级未处理错误。
+5. 关键 API 成功标准：`HTTP 2xx` 且（若定义）业务成功码通过。
+
+### B. mobile-app
+
+1. 模拟器或真机关键路径测试（登录→核心功能→退出）。
+2. 留存关键截图/录屏。
+3. 崩溃/错误日志无阻断级错误。
+4. 关键 API 成功标准：`HTTP 2xx` 且（若定义）业务成功码通过。
+
+### C. mini-program
+
+1. 开发者工具或真机关键路径测试。
+2. 留存截图并核验数据绑定与布局。
+3. console/请求日志无阻断级错误。
+4. 关键 API 成功标准：`HTTP 2xx` 且（若定义）业务成功码通过。
+
+任一强制项缺失或失败：`Blocked`（不可交付）。
+
+---
+
+## 字段级映射（think vNext → 测试类型）
+
+| think 字段 | 测试用例类型 |
+|---|---|
+| `requirements.happy_path` | 功能测试 / 冒烟测试 |
+| `requirements.edge_cases` | 边界值测试 |
+| `requirements.failure_modes` | 异常场景测试 |
+| `requirements.success_signals` | UI/提示/可视化验证 |
+| `requirements.performance_targets` | 性能测试 |
+| `requirements.permissions` | 权限测试 |
+| `requirements.rollback_policy` | 逆向流程测试 |
+| `conflicts[]` / `open_questions[]` | Blocked 原因或 Warn 风险 |
+
+---
+
+## 统一状态语义
+
+- `Pass`：已执行，且所有阻塞级要求满足。
+- `Fail`：已执行，但至少一项验证不满足。
+- `Blocked`：前置信息不足或阻塞项未闭环，无法形成可交付结论。
+
+> `Warn` 仅作为风险标签附加在 `Pass/Fail` 上，不替代主状态。
+
+---
+
+## 输出模板（最小）
 
 ```markdown
 # 测试用例: {featureName}
 
-**版本**: {version}
 **状态**: Draft/Reviewed/Approved
-**测试工程师**: {QA name}
-**创建日期**: {date}
+**执行结论**: Pass/Fail/Blocked
 
-## UI 可视化执行要求（仅 Web 前端 UI）
+## 前置 Gate 结论
+- Gate0 输入完整性: Pass/Blocked
+- Gate1 冲突未决判定: Pass/Blocked (+Warn)
+- Gate2 AC→TC 映射: Pass/Blocked
 
-| 字段 | 值 |
-|------|------|
-| 执行框架 | agent-browser / browser-use |
-| 环境入口 | {web login url} |
-| 账号来源 | 仅可由用户提供（角色/权限映射） |
-| 执行起点 | 从登录页开始 |
-| 交付门槛 | 任一校验项失败 => Blocked/不可交付 |
+## 用例分类
+- 冒烟测试
+- 功能测试
+- 边界测试
+- 异常测试
+- UI/可视化测试
+- 性能测试
+- 权限测试
+- 逆向流程测试
+- 回归测试
 
----
+## AC→TC 覆盖矩阵
+| AC-ID | TC-ID | 覆盖状态 | 备注 |
+|---|---|---|---|
 
-## 用例分类汇总
-
-| 类别 | 用例数 | 覆盖维度 |
-|------|-------|---------|
-| 功能测试 | X | 正向流程 |
-| 边界测试 | X | 边界校验 |
-| 异常测试 | X | 错误处理 |
-| UI测试 | X | 成功反馈 |
-| 性能测试 | X | 性能 |
-| 权限测试 | X | 权限控制 |
-| 逆向流程测试 | X | 撤销处理 |
-
----
-
-## 1. 功能测试用例（正向流程）
-
-### TC-{id}: {caseName}
-
-| 字段 | 值 |
-|------|------|
-| 用例ID | TC-{id} |
-| 用例名称 | {name} |
-| 用例类型 | 功能测试 |
-| 优先级 | P0/P1/P2 |
-| 前置条件 | {prerequisite} |
-| 测试步骤 | 1. {step 1}<br>2. {step 2}<br>3. {step 3} |
-| 预期结果 | {expected result} |
-| 测试数据 | {test data} |
-| 实际结果 | - |
-| 测试结论 | - |
-
----
-
-## 2. 边界值测试用例
-
-### TC-{id}: {caseName}
-
-| 字段 | 值 |
-|------|------|
-| 用例ID | TC-{id} |
-| 用例名称 | {name} |
-| 用例类型 | 边界测试 |
-| 优先级 | P1/P2 |
-| 测试场景 | {scenario} |
-| 输入值 | {input} |
-| 边界值 | {boundary value} |
-| 预期结果 | {expected} |
-
-### 边界值矩阵
-
-| 字段 | 最小值 | 最大值 | 边界内 | 边界外 |
-|------|--------|--------|--------|--------|
-| {field} | {min} | {max} | {valid} | {invalid} |
-
----
-
-## 3. 异常场景测试用例
-
-### TC-{id}: {caseName}
-
-| 字段 | 值 |
-|------|------|
-| 用例ID | TC-{id} |
-| 用例名称 | {name} |
-| 用例类型 | 异常测试 |
-| 优先级 | P1 |
-| 异常场景 | {scenario} |
-| 触发条件 | {trigger} |
-| 预期结果 | {expected} |
-| 错误码 | {error code} |
-
-### 异常场景矩阵
-
-| 场景 | 错误类型 | 用户提示 | 日志 |
-|------|---------|---------|------|
-| {scenario} | {type} | {message} | {log} |
-
----
-
-## 4. UI/提示测试用例
-
-### TC-{id}: {caseName}
-
-| 字段 | 值 |
-|------|------|
-| 用例ID | TC-{id} |
-| 用例名称 | {name} |
-| 用例类型 | UI测试 |
-| 优先级 | P2 |
-| 测试场景 | {scenario} |
-| 预期反馈 | {feedback} |
-| 反馈形式 | Toast/弹窗/状态变化 |
-| 执行框架 | agent-browser/browser-use |
-| 登录起点 | 从登录页开始（使用仅可由用户提供的测试账号） |
-| 截图证据 | {before/after screenshot paths} |
-| 数据绑定核验 | {pass/fail + 证据} |
-| 布局排版核验 | {pass/fail + 证据} |
-| Console检查 | {error_count=0} |
-| API状态检查 | {critical APIs: 200} |
-| AC→TC映射 | {AC-ID list} |
-| 交付结论 | Pass/Fail/Blocked |
-
----
-
-## 5. 性能测试用例
-
-### TC-{id}: {caseName}
-
-| 字段 | 值 |
-|------|------|
-| 用例ID | TC-{id} |
-| 用例名称 | {name} |
-| 用例类型 | 性能测试 |
-| 优先级 | P1 |
-| 性能指标 | {metric} |
-| 目标值 | < {value}ms |
-| 测试方法 | {method} |
-
-### 性能指标
-
-| 指标 | 目标值 | 预警值 | 测试方法 |
-|------|--------|--------|---------|
-| 响应时间 | < 1000ms | < 2000ms | {method} |
-| 并发数 | {N} QPS | - | {method} |
-| 错误率 | < 0.1% | < 1% | {method} |
-
----
-
-## 6. 权限测试用例
-
-### TC-{id}: {caseName}
-
-| 字段 | 值 |
-|------|------|
-| 用例ID | TC-{id} |
-| 用例名称 | {name} |
-| 用例类型 | 权限测试 |
-| 优先级 | P0 |
-| 测试角色 | {role} |
-| 测试操作 | {operation} |
-| 预期结果 | {expected} |
-
-### 权限矩阵
-
-| 角色 | 操作A | 操作B | 操作C |
-|------|-------|-------|-------|
-| 管理员 | ✓ | ✓ | ✓ |
-| 普通用户 | ✓ | ✗ | ✓ |
-| 游客 | ✗ | ✗ | ✗ |
-
----
-
-## 7. 逆向流程测试用例
-
-### TC-{id}: {caseName}
-
-| 字段 | 值 |
-|------|------|
-| 用例ID | TC-{id} |
-| 用例名称 | {name} |
-| 用例类型 | 逆向流程 |
-| 优先级 | P1 |
-| 操作 | {operation} |
-| 撤销条件 | {condition} |
-| 预期结果 | {expected} |
-
----
-
-## 测试数据准备
-
-### 测试账号
-| 角色 | 账号标识（脱敏） | 凭据引用（Secret/Vault） | 权限 |
-|------|------------------|--------------------------|------|
-| 管理员 | {provided_by_user_masked} | {secret_ref_admin} | 全部 |
-| 普通用户 | {provided_by_user_masked} | {secret_ref_user} | 基础 |
-| 受限用户 | {provided_by_user_masked} | {secret_ref_limited} | 受限 |
-
-> 说明：测试账号、环境地址与权限映射仅可由用户提供。不要在仓库中存储明文凭据。
-> 若缺少账号信息导致无法覆盖全部验收标准，测试结论应标记为 `Blocked`。
-
-### 测试数据
-| 数据类型 | 数量 | 准备方式 |
-|---------|------|---------|
-| {data type} | {count} | {method} |
-
----
-
-## 测试环境
-
-| 环境 | 地址 | 用途 |
-|------|------|------|
-| Dev | dev.example.com | 开发测试 |
-| Test | test.example.com | 集成测试 |
-| Staging | staging.example.com | 预发布 |
+## 风险与未决
+- 冲突: {conflicts}
+- 未决问题: {open_questions}
+- Warn: {warnings}
+```
 
 ---
 
 ## 输出目录
 
 默认模式（单命令调用）:
-```
+
+```text
 docs/product/test-cases/{feature}.md
 ```
 
-工作流模式（/product-toolkit:workflow）:
-```
+工作流模式（`/product-toolkit:workflow`）:
+
+```text
 docs/product/{version}/qa/test-cases/{feature}.md
-```
-
----
-
-## 工作流
-
-```
-/product-toolkit:think [功能]  (产品思考)
-        ↓
-/product-toolkit:user-story [功能]  (用户故事)
-        ↓
-/product-toolkit:test-case [功能]  (测试用例)
 ```
 
 ## 参考
 
-- `../../references/acceptance-criteria.md` - 验收标准与 QA 用例模板
-```
+- `../../references/acceptance-criteria.md`
+- `../../references/user-story-mapping.md`

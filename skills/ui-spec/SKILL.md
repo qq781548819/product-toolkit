@@ -1,7 +1,6 @@
 ---
 name: ui-spec
 description: Use when user wants to generate UI design specifications, design tokens, or design system components - provides comprehensive UI specification document
-argument-hint: "<feature or component>"
 ---
 
 # UI 设计规范

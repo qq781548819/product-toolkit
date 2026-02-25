@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Test Progress Schema",
+  "description": "Schema for test progress tracking",
+  "type": "object",
+  "required": ["version", "test_cases"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Product version"
+    },
+    "test_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "status"],
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "category": {
+            "type": "string",
+            "enum": ["SMOKE", "NEW", "REGRESSION", "FIX"]
+          },
+          "platform": {
+            "type": "string",
+            "enum": ["web", "mobile-app", "mini-program"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "passed", "failed", "blocked", "skipped"]
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "assignee": {"type": "string"},
+          "iterations": {
+            "type": "integer",
+            "description": "Number of test iterations"
+          },
+          "last_run": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "evidence": {
+            "type": "object",
+            "properties": {
+              "screenshots": {"type": "array", "items": {"type": "string"}},
+              "console_errors": {"type": "array", "items": {"type": "string"}},
+              "api_responses": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total": {"type": "integer"},
+        "passed": {"type": "integer"},
+        "failed": {"type": "integer"},
+        "blocked": {"type": "integer"},
+        "pending": {"type": "integer"},
+        "coverage_percentage": {"type": "number"}
+      }
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

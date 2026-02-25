@@ -1,176 +1,114 @@
 ---
 name: workflow
-description: Use when user wants to run complete product workflow - provides one-click workflow that automatically calls sub-commands to generate versioned complete product packages including PRD, user stories, UI design, test cases, and technical solutions. Supports multiple scenarios (new product, iteration, competitor analysis, MVP).
-argument-hint: "<product concept or feature>"
+description: Use when user wants to run complete product workflow with think vNext hard-switch gates and downstream mapping consistency
 ---
 
-# 一键产品完善工作流
+# 一键产品工作流（think vNext Hard Switch）
 
-通过智能路由按场景自动编排子命令（4-11 个步骤），输出版本化的完整产品包。
+按统一契约串联 `think → user-story → prd → test-case`，并以规则 Gate 判定 `Pass/Blocked`。
 
 ## 使用方式
 
 ```bash
-# 启动工作流
-/product-toolkit:workflow 电商收藏功能
-
-# 指定场景
-/product-toolkit:workflow --scenario=new_product 电商收藏功能
-
-# 指定产品形态
-/product-toolkit:workflow --platforms=web,mini-program 电商收藏功能
-
-# 查看帮助
-/product-toolkit:workflow --help
+/product-toolkit:workflow [功能]
+/product-toolkit:workflow --scenario=iteration [功能]
+/product-toolkit:workflow --platforms=web,mini-program [功能]
 ```
 
-## 支持的场景
+---
 
-| 场景 | 命令 | 说明 |
-|------|------|------|
-| 全新产品 | --scenario=new_product | 从概念到完整产品包 |
-| 功能迭代 | --scenario=iteration | 现有产品新增功能 |
-| 竞品分析 | --scenario=competitor | 竞品分析后输出方案 |
-| MVP验证 | --scenario=mvp | 最小可行产品 |
+## 全局规则
 
-## 支持的产品形态
+1. Rule-first：只定义规则契约，不做行为引擎实现。
+2. Hard switch：不再使用旧版固定题号兼容逻辑。
+3. Open-questions 先行：先 triage，再进入下游产物生成。
+4. 下游映射唯一来源：`../../references/user-story-mapping.md`。
 
-| 形态 | 说明 |
-|------|------|
-| web | Web应用 |
-| mobile-app | 移动App (iOS + Android) |
-| mini-program | 微信小程序 |
-| cross-platform | 跨平台 |
-| saas | SaaS产品 |
-| baas | 全栈BaaS (Supabase/Firebase) |
+---
 
 ## 工作流阶段
 
-### Phase 1: 智能分析
+### Phase 0：Open Questions Triage（先决）
 
-分析用户输入，识别：
-- 场景类型 (全新/迭代/竞品/MVP)
-- 产品形态 (PC/小程序/App/BaaS)
-- 目标用户群体
-- 核心功能范围
+- 汇总 `think vNext` 未决问题与冲突。
+- 标记 `blocking=true/false`。
+- 明确关闭标准与 owner。
 
-### Phase 2: 需求采集 (交互确认)
+### Phase 1：think vNext 收敛
 
-通过对话确认关键信息：
-- 产品形态选择
-- 目标用户
-- 核心功能
-- 版本规划
+- 产出标准输入信封（Markdown + structured block）。
+- 必填字段齐全后方可进入下游。
 
-### Phase 3: 子命令执行
+### Phase 2：下游产物生成
 
-根据场景自动执行相应子命令：
+基础链路：
 
-**全新产品场景**:
-```
-think → brainstorm → design → jtbd → version → wireframe → ui-spec → user-story → prd → test-case → team
-```
-
-**功能迭代场景**:
-```
-think → version → user-story → test-case → team
-```
-
-**竞品分析场景**:
-```
-analyze → think → prd
-```
-
-**MVP验证场景**:
-```
+```text
 think → user-story → prd → test-case
 ```
 
-### Phase 3.5: UI 可视化测试 Gate（Web 前端强制）
+场景扩展（可选）：
 
-当当前功能包含可视化 Web UI 时，在 `test-case` 之后必须完成以下 Gate 才能进入 Phase 4：
+- new_product: `think → brainstorm → design → ... → user-story → prd → test-case → release`
+- iteration: `think → version → user-story → prd → test-case → release`
+- competitor: `analyze → think → user-story → prd → test-case`
+- mvp: `think → user-story → prd → test-case`
 
-1. 使用 `agent-browser` 或 `browser-use` 启动并执行 Web 测试。
-2. 从登录页开始验证（账号仅可由用户提供），覆盖核心功能路径。
-3. 采集关键步骤截图，检查数据绑定正确、页面排版正常。
-4. 检查浏览器 Console 无未处理错误。
-5. 检查关键接口网络请求状态为 HTTP 200。
-6. 输出 AC→TC 覆盖矩阵并确认用户故事验收标准全覆盖。
-7. 测试凭据仅可由用户提供并脱敏记录，禁止文档明文存储。
+### Phase 3：一致性校验 Gate
 
-若缺少测试账号/权限映射导致无法执行，结论必须标记 `Blocked`，不可宣告工作流完成。
+#### Gate A：契约完整性
 
-### Phase 4: 输出整合
+- 必填字段缺失 ⇒ `Blocked`
 
-自动整理输出到版本目录：
-```
+#### Gate B：冲突/未决判定
+
+- `critical/high` 未解决冲突 ⇒ `Blocked`
+- `open_question.blocking=true` 未关闭 ⇒ `Blocked`
+- `medium/low` 未解决冲突 ⇒ `Warn`
+
+#### Gate C：映射一致性
+
+- `think → user-story → prd → test-case` 字段追踪必须完整
+- 任一链路断裂 ⇒ `Blocked`
+
+#### Gate D：可视化 QA Gate（如适用）
+
+- 平台强制证据（截图/日志/API 成功）不满足 ⇒ `Blocked`
+
+---
+
+## Workflow 完成语义
+
+- `Pass`：所有 Gate 通过；若有 `Warn`，需显式列出风险。
+- `Blocked`：任一阻塞条件触发。
+
+> `Warn` 不是最终状态，只是 `Pass` 的风险附注。
+
+---
+
+## 输出目录
+
+```text
 docs/product/{version}/
 ├── SUMMARY.md
-├── prd/{feature}.md
 ├── user-story/{feature}.md
-├── design/wireframe/{feature}.md
-├── design/spec/{feature}.md
+├── prd/{feature}.md
 ├── qa/test-cases/{feature}.md
-├── tech/api/{feature}.md
-└── tech/data-model/{feature}.md
+├── tech/
+└── release/
 ```
 
-## 使用示例
+`SUMMARY.md` 必须包含：
 
-### 示例 1: 全新产品
+1. Gate 结果（A/B/C/D）
+2. 最终状态（Pass/Blocked）
+3. Warn 风险列表
+4. 未决问题闭环状态
 
-```bash
-/product-toolkit:workflow 电商收藏功能
-```
+---
 
-交互:
-```
-🤖 分析中...
-✓ 识别为: 全新产品
-✓ 产品形态: Web + 微信小程序
-✓ 目标用户: 电商消费者
+## 相关引用
 
-📋 请确认:
-[1] 产品形态: Web + 微信小程序
-[2] 目标用户: 电商消费者
-[3] 核心功能: 商品收藏、收藏管理
-[4] 版本号: v1.0.0
-
-确认? (y/n)
-
-> y
-
-🚀 执行工作流...
-[1/11] 产品思考...
-[2/11] 发散思维...
-...
-
-✅ 完成! 输出: docs/product/v1.0.0/
-```
-
-### 示例 2: 指定场景和形态
-
-```bash
-/product-toolkit:workflow --scenario=mvp --platforms=baas 用户登录功能
-```
-
-## 配置文件
-
-工作流配置: `../../config/workflow.yaml`
-版本配置: `../../config/versions.yaml`
-
-## 相关子命令
-
-- `think` - 产品思考
-- `brainstorm` - 发散思维
-- `design` - Design Thinking
-- `jtbd` - JTBD分析
-- `version` - 版本规划
-- `wireframe` - 线框图
-- `ui-spec` - UI规范
-- `user-story` - 用户故事
-- `prd` - PRD文档
-- `test-case` - 测试用例（UI 场景需通过可视化 Gate）
-- `api-design` - API设计
-- `data-dictionary` - 数据字典
-- `team` - 多代理整合
+- `../../references/user-story-mapping.md`
+- `../../references/acceptance-criteria.md`
+- `../../config/workflow.yaml`

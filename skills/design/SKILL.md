@@ -1,7 +1,6 @@
 ---
 name: design
 description: Use when user wants to apply Design Thinking methodology - provides 5-stage framework (Empathize, Define, Ideate, Prototype, Test) for user-centered problem solving
-argument-hint: "<feature or problem>"
 ---
 
 # Design Thinking 设计思维

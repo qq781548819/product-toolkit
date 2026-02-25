@@ -1,7 +1,6 @@
 ---
 name: persona
 description: Use when user wants to create user personas - provides structured persona template with demographics, behaviors, goals, and pain points
-argument-hint: "<user description>"
 ---
 
 # 用户画像

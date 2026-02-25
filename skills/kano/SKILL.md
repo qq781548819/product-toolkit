@@ -1,7 +1,6 @@
 ---
 name: kano
 description: Use when user wants to analyze requirements using KANO model - classifies requirements into Must-be, One-dimensional, Attractive, Indifferent, Reverse
-argument-hint: "<feature or product>"
 ---
 
 # KANO 模型分析

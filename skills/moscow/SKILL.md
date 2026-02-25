@@ -1,7 +1,6 @@
 ---
 name: moscow
 description: Use when user wants to prioritize requirements using MoSCoW method - Must, Should, Could, Won't framework for requirement prioritization
-argument-hint: "[feature or backlog items]"
 ---
 
 # MoSCoW 优先级排序
