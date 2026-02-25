@@ -3,7 +3,7 @@ name: product-toolkit
 description: 通用产品经理工具集 - think vNext 规则先行硬切换版本
 ---
 
-# Product Toolkit v3.0.1
+# Product Toolkit v3.1.0
 
 [PRODUCT TOOLKIT ACTIVATED]
 
@@ -47,6 +47,14 @@ description: 通用产品经理工具集 - think vNext 规则先行硬切换版�
 | `/product-toolkit:release` | 上线检查 | `docs/product/release/v{version}.md` |
 | `/product-toolkit:analyze` | 竞品分析 | `docs/product/competitors/{name}.md` |
 | `/product-toolkit:team` | 多代理协作 | `docs/product/{version}/` |
+| `/product-toolkit:test-progress` | 测试进度 | `docs/product/test-progress/{version}.md` |
+| `/product-toolkit:evolution-summary` | 版本演进 | `docs/product/evolution/{version}.md` |
+| `/product-toolkit:save` | 保存会话 | `.ptk/state/` |
+| `/product-toolkit:resume` | 恢复会话 | `.ptk/state/` |
+| `/product-toolkit:gate` | 门控检查 | - |
+| `/product-toolkit:remember` | 记忆知识 | `.ptk/memory/` |
+| `/product-toolkit:recall` | 检索记忆 | `.ptk/memory/` |
+| `/product-toolkit:status` | 状态面板 | - |
 
 ---
 

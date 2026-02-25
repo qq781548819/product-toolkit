@@ -3,7 +3,7 @@ name: product-toolkit
 description: Product toolkit for PM workflows (think/user-story/prd/test-case/workflow etc.) with think vNext hard-switch rules.
 ---
 
-# Product Toolkit v3.0.1
+# Product Toolkit v3.1.0
 
 提供产品经理工作流工具集：需求澄清、用户故事、PRD、测试用例、技术方案与发布清单。
 
@@ -45,6 +45,12 @@ description: Product toolkit for PM workflows (think/user-story/prd/test-case/wo
 | `/product-toolkit:workflow [功能]` | 一键产品工作流 | `/product-toolkit:workflow 电商收藏功能` |
 | `/product-toolkit:test-progress [版本]` | 测试进度记录 | `/product-toolkit:test-progress v1.0.0` |
 | `/product-toolkit:evolution-summary [版本]` | 版本演进总结 | `/product-toolkit:evolution-summary v1.0.1` |
+| `/product-toolkit:save` | 保存会话状态到 .ptk/ | `/product-toolkit:save` |
+| `/product-toolkit:resume [session_id]` | 恢复会话状态 | `/product-toolkit:resume` |
+| `/product-toolkit:gate [阶段]` | Soft-Gate 门控检查 | `/product-toolkit:gate think` |
+| `/product-toolkit:remember [内容]` | 记忆项目知识 | `/product-toolkit:remember --insight 核心用户是Z世代` |
+| `/product-toolkit:recall [关键词]` | 检索项目记忆 | `/product-toolkit:recall 用户` |
+| `/product-toolkit:status` | 显示状态面板 | `/product-toolkit:status` |
 
 ---
 
@@ -155,6 +161,97 @@ rg -n "<legacy-fixed-round-pattern>|<legacy-compat-pattern>" \
 
 ---
 
+## 持久化系统 (.ptk/)
+
+v3.1.0 新增状态跨会话持久化功能：
+
+```
+.ptk/
+├── state/
+│   ├── think-progress.json    # think vNext 会话进度
+│   ├── workflow-state.yaml    # workflow 执行状态
+│   ├── version-history.json   # 版本演进历史
+│   └── test-progress.json    # 测试进度追踪
+├── memory/
+│   ├── project-insights.json # 项目洞察（跨会话）
+│   ├── decisions.json         # 历史决策记录
+│   └── vocabulary.json       # 领域术语表
+└── cache/
+    └── templates/           # 模板缓存
+```
+
+### 持久化技能
+
+| 技能 | 说明 |
+|------|------|
+| `/product-toolkit:save` | 保存当前会话进度 |
+| `/product-toolkit:resume` | 恢复历史会话 |
+
+### 记忆技能
+
+| 技能 | 说明 |
+|------|------|
+| `/product-toolkit:remember` | 记忆项目洞察/决策/术语 |
+| `/product-toolkit:recall` | 检索历史记忆 |
+
+### 状态面板
+
+| 技能 | 说明 |
+|------|------|
+| `/product-toolkit:status` | 显示当前工作流状态 |
+| `/product-toolkit:gate` | Soft-Gate 门控检查 |
+
+---
+
+## Soft-Gate 门控机制
+
+v3.1.0 引入柔性门控机制：
+
+### 门控行为
+
+- **默认**: 阻止阶段流转，显示警告
+- **覆盖**: 用户可强制 `--force` 继续
+- **记录**: 强制覆盖时记录风险到下游
+
+### 门控检查项
+
+| 阶段 | 门控项 | 判定标准 |
+|------|--------|---------|
+| think | 收敛门 | 无 blocking=true 的未决项 |
+| user-story | AC门 | 七维 AC 完整，覆盖率100% |
+| prd | 风险门 | critical/high 冲突已解决或标注 |
+| test-case | 覆盖门 | AC→TC 覆盖矩阵完整 |
+| release | 测试门 | 冒烟测试 100% 通过 |
+
+使用 `/product-toolkit:gate [阶段]` 检查门控。
+
+---
+
+## 自动化测试系统
+
+v3.1.0 新增自动化测试能力：
+
+### 测试执行
+
+```bash
+# 运行自动化测试
+./scripts/auto_test.sh -v v1.0.0 -p web
+./scripts/auto_test.sh -v v1.0.0 -p mobile-app
+./scripts/auto_test.sh -v v1.0.0 -p mini-program
+```
+
+### 自迭代机制
+
+- 迭代上限: 3 次
+- 失败时自动修复并重新测试
+- 收集截图/Console/API 证据
+
+### 进度跟踪
+
+使用 `/product-toolkit:test-progress [版本]` 跟踪测试进度。
+
+---
+
 ## 输出目录
 
 默认模式（单命令调用）：
@@ -196,9 +293,10 @@ docs/product/{version}/
 
 ---
 
-**版本**: v3.0.1
+**版本**: v3.1.0
 
 **更新日志**:
+- v3.1.0: 添加状态持久化系统 (.ptk/)、Soft-Gate门控、记忆系统、自动化测试
 - v3.0.1: 添加版本演进与测试回归系统（自动 patch+1、用户故事继承、测试进度跟踪、演进总结）
 - v3.0.1: 版本号修正，与 plugin.json 保持一致
 - v3.0.0: 添加一键工作流、版本化输出配置、子技能结构。

@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vocabulary Schema",
+  "description": "Schema for domain vocabulary/terminology",
+  "type": "object",
+  "required": ["terms"],
+  "properties": {
+    "project": {
+      "type": "string"
+    },
+    "terms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["term", "definition"],
+        "properties": {
+          "id": {"type": "string"},
+          "term": {"type": "string"},
+          "definition": {"type": "string"},
+          "aliases": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "examples": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "category": {"type": "string"},
+          "source": {"type": "string"},
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

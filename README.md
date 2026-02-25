@@ -57,6 +57,10 @@ ls -la ~/.agents/skills/product-toolkit
 
 | 功能 | 说明 |
 |---|---|
+| 状态持久化 | .ptk/ 目录跨会话保存 think/workflow/test 状态 |
+| 记忆系统 | remember/recall 项目洞察、决策、术语 |
+| 门控机制 | Soft-Gate 阻止阶段流转，支持 --force 强制覆盖 |
+| 状态面板 | /product-toolkit:status 显示阶段/门控/进度 |
 | 产品思考（think vNext） | 批量问答 + 动态追问 + 冲突检测 + 自动摘要 |
 | 发散思维 | 网状思维头脑风暴，多维分析 |
 | Design Thinking | 设计思维五阶段 |
@@ -336,6 +340,7 @@ docs/product/{version}/
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v3.1.0 | 2026-02-25 | 添加状态持久化系统(.ptk/)、Soft-Gate门控、记忆系统(remember/recall)、自动化测试(status面板) |
 | v3.0.1 | 2026-02-25 | 添加版本演进与测试回归系统（自动 patch+1、用户故事继承、测试进度跟踪、演进总结）|
 | v3.0.0 | 2026-02-24 | 添加一键工作流、版本化输出配置、平台模板与版本配置 |
 | v2.6.0 | 2026-02-19 | 添加 Claude Team 多代理协作 |
