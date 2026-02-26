@@ -306,6 +306,8 @@ python3 scripts/migrate_memory_v3.py --rollback .ptk/backups/<backup_dir>
 桥接状态文件：
 
 ```text
+.ptk/state/bridge/<team>/ralph-link.json
+# 兼容快照（最近一次写入）：
 .ptk/state/bridge/ralph-link.json
 ```
 
@@ -361,7 +363,7 @@ export PTK_BRIDGE_RUNTIME_PREFERENCE=omc   # 或 omx
 
 #### 4) 关键排查点
 
-- 桥接状态：`.ptk/state/bridge/ralph-link.json`
+- 桥接状态：`.ptk/state/bridge/<team>/ralph-link.json`
 - Team 状态：`.ptk/state/team/<team>/manifest.json`
 - Review Gate：`.ptk/state/team/<team>/review-gates.json`
 - 若 `runtime=auto` 失败，先确认 `.omx/state` / `.omc/state` 目录存在

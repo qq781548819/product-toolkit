@@ -35,7 +35,10 @@ QUALITY_REVIEWER="qa"
 RUNTIME_EFFECTIVE=""
 
 STATE_DIR=""
+LINK_DIR=""
 LINK_FILE=""
+GLOBAL_LINK_FILE=""
+TEAM_SAFE=""
 TEAM_DIR=""
 MANIFEST_FILE=""
 REVIEW_FILE=""
@@ -276,13 +279,43 @@ parse_args() {
 
 init_paths() {
   [[ -n "$TEAM" ]] || { echo "Error: --team is required" >&2; exit 1; }
+  TEAM_SAFE="$(sanitize_name "$TEAM")"
   STATE_DIR="$PROJECT_ROOT/.ptk/state/bridge"
-  LINK_FILE="$STATE_DIR/ralph-link.json"
+  LINK_DIR="$STATE_DIR/$TEAM_SAFE"
+  LINK_FILE="$LINK_DIR/ralph-link.json"
+  GLOBAL_LINK_FILE="$STATE_DIR/ralph-link.json"
   TEAM_DIR="$PROJECT_ROOT/.ptk/state/team/$TEAM"
   MANIFEST_FILE="$TEAM_DIR/manifest.json"
   REVIEW_FILE="$TEAM_DIR/review-gates.json"
   REPORTS_DIR="$TEAM_DIR/reports"
-  mkdir -p "$STATE_DIR"
+  mkdir -p "$STATE_DIR" "$LINK_DIR"
+}
+
+migrate_legacy_link_if_needed() {
+  [[ -f "$LINK_FILE" ]] && return 0
+  [[ -f "$GLOBAL_LINK_FILE" ]] || return 0
+
+  python3 - "$GLOBAL_LINK_FILE" "$LINK_FILE" "$TEAM" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+legacy = Path(sys.argv[1])
+current = Path(sys.argv[2])
+team = sys.argv[3]
+
+try:
+    data = json.loads(legacy.read_text(encoding="utf-8"))
+except Exception:
+    raise SystemExit(0)
+
+team_node = data.get("team", {}) if isinstance(data.get("team"), dict) else {}
+if str(team_node.get("team_name", "")) != team:
+    raise SystemExit(0)
+
+current.parent.mkdir(parents=True, exist_ok=True)
+current.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+PY
 }
 
 detect_ralph_state() {
@@ -622,17 +655,18 @@ persist_bridge_state() {
   local verify_file="${5:-}"
   local ralph_json_file="${6:-}"
 
-  python3 - "$LINK_FILE" "$event" "$note" "$status_override" "$terminal_override" "$BRIDGE_EVENT_REASON_CODES" "$RUNTIME" "$RUNTIME_EFFECTIVE" "$TEAM" "$MANIFEST_FILE" "$REVIEW_FILE" "$verify_file" "$ralph_json_file" "$(iso_now)" <<'PY'
+  python3 - "$LINK_FILE" "$GLOBAL_LINK_FILE" "$event" "$note" "$status_override" "$terminal_override" "$BRIDGE_EVENT_REASON_CODES" "$RUNTIME" "$RUNTIME_EFFECTIVE" "$TEAM" "$MANIFEST_FILE" "$REVIEW_FILE" "$verify_file" "$ralph_json_file" "$(iso_now)" <<'PY'
 import json
 import sys
 from pathlib import Path
 
 (
-    link_file, event, note, status_override, terminal_override, reason_codes_csv, runtime_requested,
+    link_file, global_link_file, event, note, status_override, terminal_override, reason_codes_csv, runtime_requested,
     runtime_effective, team_name, manifest_file, review_file, verify_file, ralph_file, now
 ) = sys.argv[1:]
 
 link_path = Path(link_file)
+global_link_path = Path(global_link_file) if global_link_file else None
 manifest_path = Path(manifest_file)
 review_path = Path(review_file)
 verify_path = Path(verify_file) if verify_file else None
@@ -646,9 +680,12 @@ def read_json(path: Path):
     except Exception:
         return {}
 
-payload = read_json(link_path)
-if not isinstance(payload, dict):
+if event == "start":
     payload = {}
+else:
+    payload = read_json(link_path)
+    if not isinstance(payload, dict):
+        payload = {}
 
 manifest = read_json(manifest_path)
 review = read_json(review_path)
@@ -682,7 +719,7 @@ detected_ralph_phase = str(ralph.get("phase", "") or "")
 mapped_phase = map_phase(phase, terminal, detected_ralph_phase)
 
 bridge_id = str(payload.get("bridge_session_id", "")).strip()
-if not bridge_id:
+if event == "start" or not bridge_id:
     bridge_id = f"rb-{now.replace(':','').replace('-','').replace('T','-').replace('Z','')}"
 
 bridge_status = "terminal" if phase == "terminal" else "active"
@@ -730,7 +767,7 @@ payload.update({
     "updated_at": now,
 })
 
-if not payload.get("created_at"):
+if event == "start" or not payload.get("created_at"):
     payload["created_at"] = now
 
 if verify:
@@ -739,7 +776,7 @@ if verify:
 if reason_codes:
     payload["last_reason_codes"] = reason_codes
 
-history = payload.get("history", [])
+history = [] if event == "start" else payload.get("history", [])
 if not isinstance(history, list):
     history = []
 history.append({
@@ -754,6 +791,10 @@ payload["history"] = history[-200:]
 
 link_path.parent.mkdir(parents=True, exist_ok=True)
 link_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+if global_link_path:
+    global_link_path.parent.mkdir(parents=True, exist_ok=True)
+    global_link_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
 }
 
@@ -887,6 +928,7 @@ main() {
 
   parse_args "$@"
   init_paths
+  migrate_legacy_link_if_needed
 
   if ! resolve_runtime "$RUNTIME"; then
     exit 1

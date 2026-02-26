@@ -25,7 +25,7 @@
 
 ### 验收标准（7维）
 
-- [ ] US352-AC01 正向：生成 `.ptk/state/bridge/ralph-link.json`
+- [ ] US352-AC01 正向：生成 `.ptk/state/bridge/<team>/ralph-link.json`
 - [ ] US352-AC02 边界：支持 session-scoped 与 root-scoped 状态读取
 - [ ] US352-AC03 错误：桥接状态损坏时阻断并给出修复指引
 - [ ] US352-AC04 反馈：status 可展示 phase 映射与终态候选

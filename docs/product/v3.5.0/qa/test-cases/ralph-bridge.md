@@ -131,7 +131,7 @@
 
 ### SMK-US352-01 [manual]
 
-- 步骤：执行 `start` 与 `status`，检查 `.ptk/state/bridge/ralph-link.json`
+- 步骤：执行 `start` 与 `status`，检查 `.ptk/state/bridge/<team>/ralph-link.json`
 - 期望：状态文件存在，包含 team phase 与 mapped ralph phase
 - AC: US352-AC01, US352-AC04
 

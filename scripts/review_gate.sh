@@ -289,7 +289,7 @@ now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 data["evaluation"] = {
     "status": status,
-    "reason_codes": reasons or ["none"],
+    "reason_codes": reasons,
     "critical_open": critical_open,
     "high_open": high_open,
 }

@@ -10,7 +10,7 @@ v3.5.0 目标是打通 OMX/OMC 长任务执行流与 PTK 验收流，避免“�
 - 新增脚本：`scripts/ralph_bridge.sh`
 - 子命令：`start | resume | status | finalize`
 - 运行时支持：`omx | omc | auto`
-- 桥接状态：`.ptk/state/bridge/ralph-link.json`
+- 桥接状态：`.ptk/state/bridge/<team>/ralph-link.json`
 
 ### 2) verify 阶段三段式编排（强制顺序）
 1. `auto_test.sh`

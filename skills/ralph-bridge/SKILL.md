@@ -28,7 +28,7 @@ description: Bridge OMX/OMC Ralph long-task runtime with PTK team/verify accepta
    - `auto_test.sh`
    - `review_gate.sh evaluate`
    - `team_report.sh`
-4. bridge 状态落盘：`.ptk/state/bridge/ralph-link.json`
+4. bridge 状态落盘：`.ptk/state/bridge/<team>/ralph-link.json`（并同步 latest 快照到 `.ptk/state/bridge/ralph-link.json`）
 
 ## 验收建议
 

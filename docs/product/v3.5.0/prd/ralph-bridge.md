@@ -60,7 +60,7 @@
 
 ### FR-352 状态映射与恢复
 
-- 维护桥接状态文件：`.ptk/state/bridge/ralph-link.json`
+- 维护桥接状态文件：`.ptk/state/bridge/<team>/ralph-link.json`
 - 映射：
   - ralph `executing` ↔ PTK `team-plan/team-prd/team-exec`
   - ralph `verifying` ↔ PTK `team-verify + auto-test + review_gate`

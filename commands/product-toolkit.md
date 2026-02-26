@@ -31,7 +31,7 @@ description: 通用产品经理工具集 - v3.5.0（strict 默认 + team runtime
 | `/product-toolkit:test-progress` | 测试进度汇总 | `.ptk/state/test-progress.json` |
 | `/product-toolkit:workflow` | 全链路编排 + Gate | `docs/product/{version}/SUMMARY.md` |
 | `/product-toolkit:team` | 多代理协作 | `docs/product/{version}/` + `.ptk/state/team/` |
-| `/product-toolkit:ralph-bridge` | Ralph 长任务桥接（omx/omc + verify 闭环） | `.ptk/state/bridge/ralph-link.json` |
+| `/product-toolkit:ralph-bridge` | Ralph 长任务桥接（omx/omc + verify 闭环） | `.ptk/state/bridge/<team>/ralph-link.json` |
 | `/product-toolkit:remember` | 记忆写入 | `.ptk/memory/*.json` |
 | `/product-toolkit:recall` | 记忆检索 | `.ptk/memory/*.json` |
 | `/product-toolkit:gate` | strict gate 检查 | 终态 `Pass/Blocked` |
@@ -114,7 +114,8 @@ description: 通用产品经理工具集 - v3.5.0（strict 默认 + team runtime
 
 ```text
 .ptk/state/bridge/
-├── ralph-link.json
+├── <team>/ralph-link.json
+├── ralph-link.json (latest snapshot)
 └── ralph-link.schema.json
 ```
 
