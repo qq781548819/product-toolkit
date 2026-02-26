@@ -19,6 +19,16 @@ description: Use when user needs vNext product thinking with batch Q&A, dynamic 
 
 ## 1) think vNext canonical rule spec
 
+### 0.1 反馈优先读取（v3.4.0 新增）
+
+每次开始 think 前，优先读取并注入：
+
+1. `.ptk/state/requirement-feedback/*.json`
+2. `docs/product/feedback/*.json`
+3. `docs/product/{version}/feedback/*.json`
+
+将其中 `open_questions` 直接并入本轮 `open_questions` 初始集，优先处理 `blocking=true` 条目。
+
 ### 1.1 批量问答策略（Batch Policy）
 - 每轮问题数：`3-5` 题
 - 动态追问深度上限：`2` 层（针对同一未决点）
@@ -114,4 +124,3 @@ think_vnext_output:
 ## 参考
 
 - `../../references/socratic-questioning.md`（vNext 主规范）
-

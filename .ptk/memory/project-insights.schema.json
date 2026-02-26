@@ -14,6 +14,9 @@
         "type": "object",
         "required": ["id", "content", "created_at"],
         "properties": {
+          "memory_id": {"type": "string"},
+          "type": {"type": "string", "default": "insight"},
+          "source_session_id": {"type": "string"},
           "id": {"type": "string"},
           "content": {"type": "string"},
           "category": {
@@ -21,7 +24,17 @@
             "enum": ["product_assumption", "user_persona", "technical_constraint", "business_rule", "domain_knowledge"]
           },
           "source": {"type": "string"},
+          "evidence_ref": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "array", "items": {"type": "string"}}
+            ]
+          },
           "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "tags": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
           "created_at": {"type": "string", "format": "date-time"},
           "updated_at": {"type": "string", "format": "date-time"}
         }

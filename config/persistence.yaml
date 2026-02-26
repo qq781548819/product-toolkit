@@ -24,7 +24,8 @@ session:
 
 ## Gate Configuration
 gate:
-  # Soft-Gate: Block by default, allow force override
+  # Strict-by-default strategy: block first, allow force override with risk log
+  strict_default: true
   mode: soft  # soft | hard | disabled
   warn_on_force: true
   log_risks: true

@@ -1,9 +1,31 @@
 # Product Toolkit Version Configuration
 
-current_version: "3.2.2"
+current_version: "3.4.0"
 
 # Version history
 versions:
+  - version: "3.4.0"
+    date: "2026-02-26"
+    status: "released"
+    features:
+      - name: M1/M2 运行时升级
+        type: feature
+        description: strict 默认、反馈回写、team file/tmux 统一运行时与双审查 gate
+    owner: "PM"
+    changes:
+      - description: 新增 memory 统一信封 schema、反馈生成器、team_runtime/review_gate/team_report 命令
+        breaking: false
+  - version: "3.3.0"
+    date: "2026-02-26"
+    status: "released"
+    features:
+      - name: Product Toolkit 平台化文档基线
+        type: feature
+        description: 完整 PRD/用户故事/测试用例基线与 think vNext 契约对齐
+    owner: "PM"
+    changes:
+      - description: 补齐 docs/product/v3.3.0 基线产物
+        breaking: false
   - version: "3.2.2"
     date: "2026-02-25"
     status: "released"

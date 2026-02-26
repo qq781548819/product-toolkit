@@ -1,72 +1,142 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Test Progress Schema",
-  "description": "Schema for test progress tracking",
+  "description": "Lifecycle-aware test progress tracking schema",
   "type": "object",
-  "required": ["version", "test_cases"],
+  "required": ["schema_version", "project", "versions", "updated_at"],
   "properties": {
-    "version": {
-      "type": "string",
-      "description": "Product version"
-    },
-    "test_cases": {
+    "schema_version": { "type": "string" },
+    "project": { "type": "string" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "versions": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "title", "status"],
+        "required": ["version", "features"],
         "properties": {
-          "id": {"type": "string"},
-          "title": {"type": "string"},
-          "category": {
-            "type": "string",
-            "enum": ["SMOKE", "NEW", "REGRESSION", "FIX"]
-          },
-          "platform": {
-            "type": "string",
-            "enum": ["web", "mobile-app", "mini-program"]
-          },
-          "status": {
-            "type": "string",
-            "enum": ["pending", "passed", "failed", "blocked", "skipped"]
-          },
-          "priority": {
-            "type": "string",
-            "enum": ["critical", "high", "medium", "low"]
-          },
-          "assignee": {"type": "string"},
-          "iterations": {
-            "type": "integer",
-            "description": "Number of test iterations"
-          },
-          "last_run": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "evidence": {
+          "version": { "type": "string" },
+          "summary": {
             "type": "object",
             "properties": {
-              "screenshots": {"type": "array", "items": {"type": "string"}},
-              "console_errors": {"type": "array", "items": {"type": "string"}},
-              "api_responses": {"type": "array", "items": {"type": "string"}}
+              "feature_count": { "type": "integer", "minimum": 0 },
+              "updated_at": { "type": "string", "format": "date-time" }
+            }
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["feature", "runs"],
+              "properties": {
+                "feature": { "type": "string" },
+                "last_session_id": { "type": "string" },
+                "coverage": {
+                  "type": "object",
+                  "properties": {
+                    "us_total": { "type": "integer", "minimum": 0 },
+                    "us_executed": { "type": "integer", "minimum": 0 },
+                    "us_passed": { "type": "integer", "minimum": 0 },
+                    "tc_total": { "type": "integer", "minimum": 0 },
+                    "tc_executed": { "type": "integer", "minimum": 0 },
+                    "tc_passed": { "type": "integer", "minimum": 0 },
+                    "tc_failed": { "type": "integer", "minimum": 0 },
+                    "tc_blocked": { "type": "integer", "minimum": 0 },
+                    "ac_total": { "type": "integer", "minimum": 0 },
+                    "ac_covered": { "type": "integer", "minimum": 0 },
+                    "by_us": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "us_id": { "type": "string" },
+                          "declared_total": { "type": "integer", "minimum": 0 },
+                          "expected": { "type": "integer", "minimum": 0 },
+                          "executed": { "type": "integer", "minimum": 0 },
+                          "passed": { "type": "integer", "minimum": 0 },
+                          "failed": { "type": "integer", "minimum": 0 },
+                          "blocked": { "type": "integer", "minimum": 0 },
+                          "pending": { "type": "integer", "minimum": 0 },
+                          "pending_cases": { "type": "array", "items": { "type": "string" } }
+                        }
+                      }
+                    },
+                    "by_mode": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "mode": { "type": "string" },
+                          "expected": { "type": "integer", "minimum": 0 },
+                          "executed": { "type": "integer", "minimum": 0 },
+                          "passed": { "type": "integer", "minimum": 0 },
+                          "failed": { "type": "integer", "minimum": 0 },
+                          "blocked": { "type": "integer", "minimum": 0 }
+                        }
+                      }
+                    }
+                  }
+                },
+                "gaps": {
+                  "type": "object",
+                  "properties": {
+                    "missing_user_stories": { "type": "array", "items": { "type": "string" } },
+                    "missing_test_cases": { "type": "array", "items": { "type": "string" } },
+                    "unexecuted_test_cases": { "type": "array", "items": { "type": "string" } },
+                    "failed_test_cases": { "type": "array", "items": { "type": "string" } },
+                    "blocked_test_cases": { "type": "array", "items": { "type": "string" } },
+                    "blocked_reason_counts": {
+                      "type": "object",
+                      "additionalProperties": { "type": "integer", "minimum": 0 }
+                    },
+                    "blocked_reason_codes": { "type": "array", "items": { "type": "string" } },
+                    "non_automatable_test_cases": { "type": "array", "items": { "type": "string" } },
+                    "declared_count_mismatches": { "type": "array", "items": { "type": "object" } }
+                  }
+                },
+                "strict": {
+                  "type": "object",
+                  "properties": {
+                    "declared_vs_parsed_match": { "type": "boolean" },
+                    "declared_total_cases": { "type": ["integer", "null"], "minimum": 0 },
+                    "parsed_total_cases": { "type": "integer", "minimum": 0 },
+                    "suspicious_one_to_one": { "type": "boolean" },
+                    "us_completeness_passed": { "type": "boolean" },
+                    "non_automatable_pending": { "type": "integer", "minimum": 0 },
+                    "completeness_passed": { "type": "boolean" }
+                  }
+                },
+                "summary": {
+                  "type": "object",
+                  "properties": {
+                    "total_runs": { "type": "integer", "minimum": 0 },
+                    "passed_runs": { "type": "integer", "minimum": 0 },
+                    "failed_runs": { "type": "integer", "minimum": 0 },
+                    "blocked_runs": { "type": "integer", "minimum": 0 },
+                    "updated_at": { "type": "string", "format": "date-time" }
+                  }
+                },
+                "runs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["session_id", "status", "passed", "failed", "blocked", "test_type", "tool", "timestamp"],
+                    "properties": {
+                      "session_id": { "type": "string" },
+                      "status": { "type": "string", "enum": ["passed", "failed", "blocked"] },
+                      "passed": { "type": "integer", "minimum": 0 },
+                      "failed": { "type": "integer", "minimum": 0 },
+                      "blocked": { "type": "integer", "minimum": 0 },
+                      "test_type": { "type": "string" },
+                      "tool": { "type": "string" },
+                      "timestamp": { "type": "string", "format": "date-time" }
+                    }
+                  }
+                }
+              }
             }
           }
         }
       }
-    },
-    "summary": {
-      "type": "object",
-      "properties": {
-        "total": {"type": "integer"},
-        "passed": {"type": "integer"},
-        "failed": {"type": "integer"},
-        "blocked": {"type": "integer"},
-        "pending": {"type": "integer"},
-        "coverage_percentage": {"type": "number"}
-      }
-    },
-    "updated_at": {
-      "type": "string",
-      "format": "date-time"
     }
   }
 }

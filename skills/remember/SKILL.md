@@ -1,93 +1,46 @@
 ---
 name: remember
-description: Remember project insights, decisions, or vocabulary for cross-session persistence
+description: Remember project insights/decisions/vocabulary with unified memory envelope metadata
 ---
 
-# 记忆项目知识
+# remember（统一记忆信封）
 
-将项目洞察、决策或术语保存到记忆系统，实现跨会话知识积累。
+## 目标
 
-## 使用方式
+写入跨会话可追溯记忆：insight / decision / vocabulary。
 
-```bash
-/product-toolkit:remember [insight]
-/product-toolkit:remember --insight "核心用户是 Z 世代"
-// 项目洞察
-/product-toolkit:remember --decision "采用微服务架构"
-// 决策记录
-/product-toolkit:remember --vocabulary "SKU: Stock Keeping Unit, 库存量单位"
-// 领域术语
-```
+## 统一字段（v3.4.0）
 
-## 记忆类型
+每条记忆应兼容以下元数据：
 
-### 项目洞察 (insight)
+- `memory_id`
+- `type`
+- `source_session_id`
+- `source`
+- `evidence_ref`
+- `confidence`
+- `tags`
+- `created_at`
+- `updated_at`
 
-保存产品核心假设、用户画像、技术约束等：
-
-```bash
-/product-toolkit:remember --insight "核心用户是 Z 世代大学生"
-/product-toolkit:remember --insight "支付渠道需要支持支付宝和微信"
-```
-
-### 决策记录 (decision)
-
-保存历史决策及其理由：
+## 用法
 
 ```bash
-/product-toolkit:remember --decision "采用微服务架构"
-  --rationale "业务复杂度高，需要独立部署和扩展"
-/product-toolkit:remember --decision "使用 PostgreSQL"
-  --alternatives "MySQL, MongoDB"
+/product-toolkit:remember --insight "核心用户是Z世代"
+/product-toolkit:remember --decision "采用PostgreSQL" --source "architecture-review"
+/product-toolkit:remember --vocabulary "SKU: Stock Keeping Unit"
 ```
 
-### 领域术语 (vocabulary)
+## 证据语义
 
-保存领域专有术语：
+- `source_session_id`: 来源会话（如 think/auto-test session id）
+- `source`: 人类可读来源（如 think-vnext、manual-review）
+- `evidence_ref`: 证据链接/文件路径（可字符串或数组）
 
-```bash
-/product-toolkit:remember --vocabulary "SKU: Stock Keeping Unit, 库存量单位"
-/product-toolkit:remember --vocabulary "DAU: Daily Active Users, 日活跃用户数"
+## 存储位置
+
+```text
+.ptk/memory/project-insights.json
+.ptk/memory/decisions.json
+.ptk/memory/vocabulary.json
 ```
-
-## 选项
-
-| 选项 | 说明 |
-|------|------|
-| `--insight` | 保存项目洞察 |
-| `--decision` | 保存决策记录 |
-| `--vocabulary` | 保存领域术语 |
-| `--category` | 分类标签 |
-| `--confidence` | 置信度 (0-1) |
-| `--source` | 来源说明 |
-
-## 记忆位置
-
-```
-.ptk/memory/
-├── project-insights.json
-├── decisions.json
-└── vocabulary.json
-```
-
-## 自动注入
-
-在以下阶段自动注入记忆：
-- `/product-toolkit:think` - 注入相关 insights
-- `/product-toolkit:prd` - 注入相关 decisions 和 vocabulary
-
-## 查看记忆
-
-使用 `/product-toolkit:recall` 检索记忆：
-
-```bash
-/product-toolkit:recall 用户
-/product-toolkit:recall --decisions
-/product-toolkit:recall --insights
-```
-
-## 相关技能
-
-- `/product-toolkit:recall` - 检索记忆
-- `/product-toolkit:save` - 保存会话状态
-- `/product-toolkit:status` - 查看状态

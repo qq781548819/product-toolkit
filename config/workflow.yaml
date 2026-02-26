@@ -1,5 +1,5 @@
 # Product Toolkit Workflow Configuration
-# Version: 3.0.1
+# Version: 3.4.0
 
 # Workflow templates for different scenarios
 workflows:
@@ -108,3 +108,15 @@ output_structure:
   tech_api: tech/api/
   tech_data_model: tech/data-model/
   release: release/
+
+# Team runtime (M2)
+team_runtime:
+  default_runtime: auto   # auto | file | tmux
+  auto_runtime_preference: file
+  worker_count: 3
+  max_fix_loops: 3
+  blocked_reason_code: max_fix_loops_exceeded
+
+review_gates:
+  spec_then_quality: true
+  critical_high_blocking: true

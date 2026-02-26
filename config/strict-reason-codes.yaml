@@ -1,0 +1,31 @@
+# Product Toolkit strict blocked reason codes
+# Used by auto-test session gaps.blocked_reason_codes and feedback generation
+
+reason_codes:
+  manual_result_missing:
+    category: manual
+    description: Manual 用例未回填结果（需要 --manual-results）
+  manual_blocked:
+    category: manual
+    description: Manual 用例被人工标记为 blocked
+  api_transport_or_connectivity_failure:
+    category: api
+    description: API 请求失败（连接/传输层错误）
+  api_placeholders_unresolved:
+    category: api
+    description: API 用例 URL/Body 存在未替换占位符
+  api_expectation_unknown:
+    category: api
+    description: API 用例 expectation 无法识别
+  repeat_guard:
+    category: memory
+    description: 同类失败模式在单会话重复触发达到拦截阈值
+  strict_case_plan_guard_failed:
+    category: strict
+    description: case-plan 声明数与解析数不一致，触发 strict guard
+  strict_no_cases_parsed:
+    category: strict
+    description: strict 模式下未解析到任何可执行用例
+  blocked_unknown:
+    category: unknown
+    description: 阻塞发生但未识别到明确原因代码

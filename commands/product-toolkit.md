@@ -1,104 +1,99 @@
 ---
 name: product-toolkit
-description: 通用产品经理工具集 - think vNext 规则先行硬切换版本
+description: 通用产品经理工具集 - v3.4.0（strict 默认 + team runtime + feedback 回写）
 ---
 
-# Product Toolkit v3.2.2
+# Product Toolkit v3.4.0
 
 [PRODUCT TOOLKIT ACTIVATED]
 
-## 🚨 Breaking Change
+## 🚨 Breaking Change（延续）
 
-`/product-toolkit:think` 已切换为 **think vNext**：
+`/product-toolkit:think` 已使用 **think vNext** 规则契约，旧版固定轮次/固定题库语义已下线。
 
-- 批量交互（非固定题库）
-- 上下文动态追问
-- 冲突检测
-- 每轮自动摘要
-- 未决问题清单（open questions ledger）
+## ✅ 默认策略
 
-旧版“固定轮次 / 固定题数”语义已下线。
+- **Strict 默认开启**（门控阻断优先）
+- 允许 `--force`，但必须记录风险
+- open-questions 反馈落点：`.ptk/state/requirement-feedback` + `docs/product/feedback`
 
 ---
 
-## 子命令
+## 子命令（核心）
 
-| 命令 | 功能 | 输出文件 |
+| 命令 | 功能 | 主要产物 |
 |---|---|---|
-| `/product-toolkit` | 主工具集入口 | - |
-| `/product-toolkit:init` | 初始化配置 | `docs/product/config.yaml` |
-| `/product-toolkit:workflow` | 一键产品工作流 | `docs/product/{version}/` |
-| `/product-toolkit:think` | 产品思考 vNext（批量+动态追问+冲突检测） | 下游命令输入 |
-| `/product-toolkit:brainstorm` | 发散思维 | `docs/product/{version}/SUMMARY.md` |
-| `/product-toolkit:design` | Design Thinking | `docs/product/{version}/design/` |
-| `/product-toolkit:jtbd` | JTBD 分析 | `docs/product/{version}/SUMMARY.md` |
-| `/product-toolkit:version` | 版本规划 | `docs/product/{version}/SUMMARY.md` |
-| `/product-toolkit:wireframe` | 草稿图/线框图 | `docs/product/{version}/design/wireframe/{feature}.md` |
-| `/product-toolkit:ui-spec` | UI 设计规范 | `docs/product/{version}/design/spec/{feature}.md` |
-| `/product-toolkit:user-story` | 用户故事 | `docs/product/{version}/user-story/{feature}.md` |
-| `/product-toolkit:prd` | PRD | `docs/product/prd/{feature}.md` |
-| `/product-toolkit:test-case` | 测试用例（含 Smoke/New/Regression + UI 可视化 Gate） | `docs/product/{version}/qa/test-cases/{feature}.md` |
-| `/product-toolkit:api-design` | API 设计 | `docs/product/{version}/tech/api/{feature}.md` |
-| `/product-toolkit:data-dictionary` | 数据字典 | `docs/product/{version}/tech/data-model/{feature}.md` |
-| `/product-toolkit:moscow` | MoSCoW 优先级 | `docs/product/{version}/SUMMARY.md` |
-| `/product-toolkit:kano` | KANO 模型分析 | `docs/product/{version}/SUMMARY.md` |
-| `/product-toolkit:persona` | 用户画像 | `docs/product/personas/{name}.md` |
-| `/product-toolkit:roadmap` | 路线图 | `docs/product/roadmap.md` |
-| `/product-toolkit:release` | 上线检查 | `docs/product/release/v{version}.md` |
-| `/product-toolkit:analyze` | 竞品分析 | `docs/product/competitors/{name}.md` |
-| `/product-toolkit:team` | 多代理协作 | `docs/product/{version}/` |
-| `/product-toolkit:test-progress` | 测试进度 | `docs/product/test-progress/{version}.md` |
-| `/product-toolkit:evolution-summary` | 版本演进 | `docs/product/evolution/{version}.md` |
-| `/product-toolkit:save` | 保存会话 | `.ptk/state/` |
-| `/product-toolkit:resume` | 恢复会话 | `.ptk/state/` |
-| `/product-toolkit:gate` | 门控检查 | - |
-| `/product-toolkit:remember` | 记忆知识 | `.ptk/memory/` |
-| `/product-toolkit:recall` | 检索记忆 | `.ptk/memory/` |
-| `/product-toolkit:status` | 状态面板 | - |
+| `/product-toolkit:think` | think vNext（批量+动态追问+冲突检测） | 下游输入契约 |
+| `/product-toolkit:user-story` | 用户故事（7维 AC） | `docs/product/{version}/user-story/` |
+| `/product-toolkit:prd` | PRD | `docs/product/{version}/prd/` |
+| `/product-toolkit:test-case` | 测试用例 + AC→TC | `docs/product/{version}/qa/test-cases/` |
+| `/product-toolkit:auto-test` | strict 自动测试生命周期 | `.ptk/state/test-sessions/` + `docs/product/{version}/qa/test-progress/` |
+| `/product-toolkit:test-progress` | 测试进度汇总 | `.ptk/state/test-progress.json` |
+| `/product-toolkit:workflow` | 全链路编排 + Gate | `docs/product/{version}/SUMMARY.md` |
+| `/product-toolkit:team` | 多代理协作 | `docs/product/{version}/` + `.ptk/state/team/` |
+| `/product-toolkit:remember` | 记忆写入 | `.ptk/memory/*.json` |
+| `/product-toolkit:recall` | 记忆检索 | `.ptk/memory/*.json` |
+| `/product-toolkit:gate` | strict gate 检查 | 终态 `Pass/Blocked` |
 
 ---
 
-## think vNext 入口契约（摘要）
+## M1：strict + 反馈闭环（已落地）
 
-- 批量交互（每轮一批问题）
-- 动态追问（缺失信息 / 冲突信息 / 高风险未证实 / 边界未闭环）
-- 每轮自动摘要（confirmed facts / assumptions / conflicts / open questions）
-- 未决问题 ledger 驱动下游阻塞语义（`blocking=true` 未关闭 => `Blocked`）
-
----
-
-## Open Questions Triage Gate（先做）
-
-执行 hard switch 前，先在 `.omx/plans/open-questions.md` 完成 think vNext 条目“关闭或 triage”。
-
-最少满足：
-
-1. 每条未决项都有 `blocking` 判定。
-2. 每条未决项都有 `owner` 与 `close_criteria`。
-3. 阻塞项未关闭时，`/product-toolkit:workflow` 结论必须为 `Blocked`。
+1. 统一记忆信封字段：`memory_id/type/source_session_id/evidence_ref/confidence/tags/created_at/updated_at`
+2. auto-test 输出 `gaps.blocked_reason_codes`（machine-readable）
+3. 测试缺口自动回写：
+   - `.ptk/state/requirement-feedback/{version}-{feature}.json`
+   - `docs/product/{version}/feedback/{feature}.md|json`
+   - `docs/product/feedback/{version}-{feature}.md|json`
 
 ---
 
-## Cutover Checklist
-
-- [ ] 三个入口文件已同步（`SKILL.md` / `commands/product-toolkit.md` / `README.md`）
-- [ ] 已删除旧版固定题库口径
-- [ ] 已保留 think vNext 关键词与契约章节
-- [ ] 已明确 `Blocked` 判定
-- [ ] 已记录 breaking change
-
----
-
-## 一致性验证（推荐）
+## M2：Team Runtime 命令契约（已落地）
 
 ```bash
-rg -n "think vNext|动态追问|冲突检测|每轮自动摘要|未决问题|Hard Switch|Breaking Change|Blocked" \
-  product-toolkit/SKILL.md product-toolkit/commands/product-toolkit.md product-toolkit/README.md
+# 统一入口（file/tmux/auto）
+./scripts/team_runtime.sh start --team <name> --runtime file|tmux|auto --task "..."
+./scripts/team_runtime.sh status --team <name>
+./scripts/team_runtime.sh resume --team <name>
+./scripts/team_runtime.sh shutdown --team <name> --terminal-status Pass|Blocked|Cancelled
+```
 
-rg -n "<legacy-fixed-round-pattern>|<legacy-compat-pattern>" \
-  product-toolkit/SKILL.md product-toolkit/commands/product-toolkit.md product-toolkit/README.md
+状态目录约定：
+
+```text
+.ptk/state/team/<team>/
+├── manifest.json
+├── tasks/task-001.json
+├── workers/<worker>/status.json
+├── mailbox/*.json
+├── review-gates.json
+└── reports/*.md|json
 ```
 
 ---
 
-*规则先行。一次切换。无旧流程兼容层。*
+## 双审查 Gate（spec -> quality）
+
+```bash
+./scripts/review_gate.sh --team <name> init
+./scripts/review_gate.sh --team <name> spec --status pass --reviewer pm
+./scripts/review_gate.sh --team <name> quality --status pass --reviewer qa
+./scripts/review_gate.sh --team <name> evaluate --critical-open 0 --high-open 0
+./scripts/review_gate.sh --team <name> status
+```
+
+规则：
+
+1. spec 未 pass，不允许提交 quality
+2. critical/high 未清零，`evaluation.status=Blocked`
+3. `max_fix_loops` 达阈值，team 终态自动 `Blocked`
+
+---
+
+## Team 报告
+
+```bash
+./scripts/team_report.sh --team <name> --format both
+```
+
+输出阶段历史、阻塞原因、终态结论（可审计）。

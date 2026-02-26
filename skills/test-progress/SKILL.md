@@ -23,6 +23,16 @@ description: Use when user wants to record test progress, smoke/regression test 
 ```
 docs/product/{version}/
 └── test-progress.md       # 测试进度（独立文件，不侵入版本测试用例）
+    └── qa/test-progress/{feature}-{session_id}.md
+```
+
+机读产物：
+
+```
+.ptk/state/test-progress.json
+.ptk/state/test-sessions/{session_id}.json
+.ptk/state/requirement-feedback/{version}-{feature}.json
+docs/product/{version}/qa/test-progress/{feature}-{session_id}.json
 ```
 
 ## 测试类型标识
@@ -62,6 +72,8 @@ docs/product/{version}/
 | 1 | 2026-02-25 | 冒烟 | 100% | PASS |
 | 2 | 2026-02-25 | 回归 | 95% | FAIL |
 | 3 | 2026-02-26 | 全面 | 100% | PASS |
+
+并记录生命周期阶段：`start → record → stop → consolidate`。
 
 ## 演进自反馈
 

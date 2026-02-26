@@ -1,162 +1,68 @@
 ---
 name: team
-description: Use when user wants multi-agent collaboration for product development - coordinates Product PM, UI Designer, QA Engineer, and Tech Lead roles to generate complete product packages. Supports multiple AI agents (Claude, OpenCLAW, OpenCode, Codex).
+description: N coordinated agents with file/tmux runtime, state machine resume, and spec->quality review gates
 ---
 
-# 多代理团队协作
+# Team 多代理协作（v3.4.0）
 
-通过多代理团队协作，生成完整的产品包（用户故事、UI 设计、测试用例、技术方案）。
+## 运行时形态
 
-## 使用方式
+- `file`：纯文件状态机（保底）
+- `tmux`：多 worker 进程协作
+- `auto`：按配置自动选择（默认偏好 file）
 
-```
-/product-toolkit:team [功能]
-/product-toolkit:team --agent=claude [功能]    # 指定 agent
-/product-toolkit:team --list-agents            # 列出可用 agent
-```
+## 统一命令入口
 
-例如：`/product-toolkit:team 电商详情页`
-
-## 支持的 Agent
-
-| Agent | 说明 | 安装路径 |
-|-------|------|---------|
-| Claude (默认) | Claude Code 原生 Team 模式 | ~/.claude/skills/ |
-| OpenCLAW | Subprocess 调用 | ~/.openclaw/skills/ |
-| OpenCode | Subprocess 调用 | ~/.config/opencode/skills/ |
-| Codex | Subprocess 调用 | ~/.agents/skills/ |
-
-## 工作流
-
-```
-用户输入: /product-toolkit:team 电商详情页
-         │
-         ▼
-    Agent Router (检测可用 agent)
-         │
-         ▼
-    角色合并 (根据 agent 能力)
-         │
-         ▼
-    并行执行:
-    ├─ Product PM: 用户故事
-    ├─ UI Designer: 草稿图+规范
-    ├─ QA Engineer: 测试用例
-    └─ Tech Lead: 技术方案
-         │
-         ▼
-    Team Lead 整合验证
-         │
-         ▼
-    输出: 完整产品包
+```bash
+./scripts/team_runtime.sh start --team <name> --runtime file|tmux|auto --task "..."
+./scripts/team_runtime.sh status --team <name>
+./scripts/team_runtime.sh resume --team <name>
+./scripts/team_runtime.sh shutdown --team <name> --terminal-status Pass|Blocked|Cancelled
 ```
 
-## 团队角色
+## 阶段状态机
 
-| 角色 | 任务 | 输出 |
-|------|------|------|
-| **Team Lead** | 协调、分解任务、整合 | 整合报告 |
-| **Product PM** | 需求分析、用户故事 | docs/product/{version}/user-story/ |
-| **UI Designer** | 草稿图、线框图、UI规范 | docs/product/{version}/design/ |
-| **QA Engineer** | 测试用例、测试计划 | docs/product/{version}/qa/test-cases/ |
-| **Tech Lead** | API设计、数据模型 | docs/product/{version}/tech/ |
+`team-plan → team-prd → team-exec → team-verify → team-fix → terminal`
 
-## 角色映射
+终态语义：
 
-不同 Agent 有不同的角色数量：
+- `Pass`
+- `Blocked`
+- `Cancelled`
 
-| 角色 (Claude) | OpenCLAW | OpenCode | Codex |
-|--------------|----------|----------|-------|
-| Team Lead | pm | developer | coder |
-| Product PM | pm | developer | coder |
-| UI Designer | designer | developer | coder |
-| QA Engineer | designer | reviewer | reviewer |
-| Tech Lead | designer | developer | coder |
+`max_fix_loops` 达上限自动 `Blocked`（`reason_code=max_fix_loops_exceeded`）。
 
-## 输出结构
+## 双审查 Gate（spec -> quality）
 
-```
-docs/product/{version}/
-├── user-story/{feature}.md
-├── prd/{feature}.md
-├── design/wireframe/{feature}.md
-├── design/spec/{feature}.md
-├── qa/test-cases/{feature}.md
-├── tech/api/{feature}.md
-└── tech/data-model/{feature}.md
+```bash
+./scripts/review_gate.sh --team <name> init
+./scripts/review_gate.sh --team <name> spec --status pass --reviewer pm
+./scripts/review_gate.sh --team <name> quality --status pass --reviewer qa
+./scripts/review_gate.sh --team <name> evaluate --critical-open 0 --high-open 0
 ```
 
-## 整合报告模板
+规则：
 
-```markdown
-# 产品包整合报告
+1. spec 未 pass，quality 不可提交
+2. critical/high 未清零，evaluation=Blocked
 
-## 功能: {featureName}
+## 状态目录
 
-### 需求 (Product PM)
-- 用户故事数: X
-- 优先级分布: Must X, Should X, Could X
-
-### 设计 (UI Designer)
-- 页面数: X
-- 组件数: X
-- 设计规范: {spec}
-
-### 测试 (QA Engineer)
-- 用例数: X
-- 覆盖率: X%
-
-### 技术 (Tech Lead)
-- API 端点数: X
-- 数据模型数: X
-
-### 验证结果
-- [ ] 需求一致性: 通过
-- [ ] 完整性: 通过
-- [ ] 质量: 通过
+```text
+.ptk/state/team/<team>/
+├── manifest.json
+├── tasks/task-001.json
+├── workers/<id>/status.json
+├── mailbox/*.json
+├── review-gates.json
+└── reports/*.md|json
 ```
 
-## 使用场景
+## Handoff 与报告
 
-- 复杂功能需要多领域专家并行工作
-- 需要完整产品包（需求+设计+测试+技术）
-- 大型功能需要任务分解和协调
-- 多 Agent 环境下的产品开发
+- 阶段迁移自动生成：`.ptk/handoffs/<team>-<from>-to-<to>.md`
+- 运行报告：
 
-## 配置
-
-配置文件: `../../config/agent.yaml`
-
-```yaml
-agents:
-  claude:
-    enabled: true
-    priority: 100
-    roles: [team-lead, product-pm, ui-designer, qa-engineer, tech-lead]
-  
-  openclaw:
-    enabled: auto
-    priority: 90
-    roles: [pm, designer]
-
-role_mapping:
-  # 角色映射规则
+```bash
+./scripts/team_report.sh --team <name> --format both
 ```
-
-## 参考
-
-- `../../references/team-collaboration.md` - 多代理协作指南
-- `../../references/team-roles.md` - 角色定义与Prompt模板
-- `../../templates/team-task.md` - 任务分解模板
-
----
-
-## 输出目录
-
-工作流模式下输出到: `docs/product/{version}/{category}/{feature}.md`
-
-- 用户故事: `docs/product/{version}/user-story/`
-- PRD: `docs/product/{version}/prd/`
-- UI设计: `docs/product/{version}/design/`
-- 测试用例: `docs/product/{version}/qa/test-cases/`
-- 技术方案: `docs/product/{version}/tech/`

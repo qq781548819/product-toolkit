@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "memory-envelope.schema.json",
+  "title": "Memory Envelope Schema",
+  "description": "Unified metadata envelope shared by all Product Toolkit memory entities",
+  "type": "object",
+  "required": [
+    "memory_id",
+    "type",
+    "source_session_id",
+    "created_at"
+  ],
+  "properties": {
+    "memory_id": {
+      "type": "string",
+      "description": "Stable unique identifier for this memory entry"
+    },
+    "type": {
+      "type": "string",
+      "description": "Memory type: insight/decision/vocabulary/test_signature/test_playbook/test_session"
+    },
+    "source_session_id": {
+      "type": "string",
+      "description": "Session id where this memory originated",
+      "default": "system"
+    },
+    "source": {
+      "type": "string",
+      "description": "Human-readable source, e.g. think-vnext / auto-test / manual"
+    },
+    "evidence_ref": {
+      "description": "Evidence references used to justify this memory",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.7
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

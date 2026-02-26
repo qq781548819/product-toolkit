@@ -59,7 +59,7 @@ ls -la ~/.agents/skills/product-toolkit
 |---|---|
 | 状态持久化 | .ptk/ 目录跨会话保存 think/workflow/test 状态 |
 | 记忆系统 | remember/recall 项目洞察、决策、术语 |
-| 门控机制 | Soft-Gate 阻止阶段流转，支持 --force 强制覆盖 |
+| 门控机制 | strict 默认开启（阻断优先），支持 --force 并强制记录风险 |
 | 状态面板 | /product-toolkit:status 显示阶段/门控/进度 |
 | 产品思考（think vNext） | 批量问答 + 动态追问 + 冲突检测 + 自动摘要 |
 | 发散思维 | 网状思维头脑风暴，多维分析 |
@@ -71,7 +71,9 @@ ls -la ~/.agents/skills/product-toolkit
 | PRD | 完整结构 + 快速模板 |
 | 测试用例 | 从验收标准自动生成（含 Smoke/New/Regression） |
 | 测试进度 | 独立测试记录 + 失败追溯 + 演进自反馈 |
-| 自动化测试编排 | 基于 agent-browser CLI（优先）/browser-use CLI，支持前端启动、工具优先级与失败记忆沉淀 |
+| 自动化测试编排 | 基于 agent-browser CLI（优先）/browser-use CLI，支持前端启动、工具优先级、blocked reason code 与失败记忆沉淀 |
+| 需求反馈回写 | auto-test 缺口自动回写到 `.ptk/state/requirement-feedback` + `docs/product/feedback` |
+| Team Runtime | 支持 file/tmux/auto 统一入口、状态机恢复、双审查 gate、团队报告 |
 | 需求池 | MoSCoW / KANO / RICE 优先级管理 |
 | 用户画像 | 模板 + 用户旅程 |
 | 产品路线图 | 季度/月度规划 |
@@ -103,6 +105,188 @@ ls -la ~/.agents/skills/product-toolkit
 
 # 一键工作流
 /product-toolkit:workflow 社区点赞功能
+```
+
+---
+
+## 自动化测试完整运行工作流（自迭代闭环）
+
+> 适用命令：`/product-toolkit:auto-test`（底层脚本：`scripts/auto_test.sh`）
+
+### 1) 运行命令（推荐）
+
+```bash
+# 严格模式：统一使用正式用例清单（禁止简化版 1:1 US→TC）
+# 已有前端服务时（例如 3000 被占用，改用 5173）
+/product-toolkit:auto-test v1.0.0 -f friend-match \
+  --test-file docs/product/v1.0.0/qa/test-cases/friend-match.md \
+  --tool agent-browser \
+  --frontend-url http://localhost:5173 \
+  --no-frontend-start \
+  -i 2
+```
+
+### 2) 生命周期（SimpleMem-Cross 思路）
+
+脚本执行固定遵循：
+
+1. **start**：创建 `session_id`，加载历史记忆（signatures/playbooks）
+2. **record**：解析测试计划，按 `US → TC` 顺序执行并记录事件流
+3. **stop**：汇总通过/失败/阻塞，计算覆盖率与缺口
+4. **consolidate**：更新记忆体与进度文件，生成复盘报告
+
+### 3) 运行图（Mermaid）
+
+```mermaid
+flowchart TD
+    A[Start: auto-test] --> B[Load test file + Build US→TC plan]
+    B --> C[Load memory: signatures/playbooks/sessions]
+    C --> D[Run case in order]
+    D --> E{Case passed?}
+    E -- Yes --> F[Record PASS evidence]
+    E -- No --> G[Classify signature]
+    G --> H{Playbook exists?}
+    H -- Yes --> I[Apply playbook + Retry once]
+    H -- No --> J[Record FAIL]
+    I --> K{Recovered?}
+    K -- Yes --> F
+    K -- No --> L{Repeat signature >= threshold?}
+    J --> L
+    L -- Yes --> M[Mark BLOCKED]
+    L -- No --> J
+    F --> N{More cases?}
+    M --> N
+    J --> N
+    N -- Yes --> D
+    N -- No --> O[Stop: coverage + gaps]
+    O --> P[Consolidate memory + progress]
+    P --> Q[Output session report]
+```
+
+### 4) 自迭代闭环产物
+
+```text
+.ptk/
+├── memory/test-learnings.json              # v2: signatures/playbooks/sessions
+├── state/test-progress.json                # 版本/功能聚合进度
+└── state/test-sessions/{session_id}.json   # 单次会话完整明细
+
+docs/product/{version}/
+├── test-progress.md
+└── qa/test-progress/{feature}-{session_id}.md/.json
+```
+
+### 5) 闭环保证机制
+
+- **失败模式沉淀**：自动归类 `signature`
+- **修复剧本复用**：命中 `playbook` 自动应用并重试
+- **重复坑拦截**：同 `signature` 达阈值触发 `Blocked`
+- **严格门禁**：`0 case`、声明数≠解析数、US 未完整覆盖均直接阻塞
+- **覆盖缺口反推**：输出 `missing_user_stories / missing_test_cases / unexecuted_test_cases / non_automatable_test_cases`
+- **下轮可继承**：下一轮先读历史记忆再执行，避免重复踩坑
+
+### 6) 覆盖 Manual / API 用例（新）
+
+```bash
+/product-toolkit:auto-test v1.0.0 -f friend-match \
+  --test-file docs/product/v1.0.0/qa/test-cases/friend-match.md \
+  --tool agent-browser \
+  --frontend-url http://localhost:5173 --no-frontend-start \
+  --api-base-url http://localhost:3001 \
+  --api-vars id=1,code=ABC123 \
+  --manual-results docs/product/v1.0.0/qa/manual-results/v1.0.0-friend-match.json
+```
+
+- `api` 用例：自动按 `method_hint + expectation_hint` 发请求并判定
+- `manual` 用例：读取 `--manual-results` 回填结果；未回填会严格标记 `blocked`
+- 每轮自动生成 manual 模板：`.ptk/evidence/{version}/{feature}/manual-results-template-{session_id}.json`
+- 报告新增“阻塞原因分布”：如 `manual_result_missing`、`api_transport_or_connectivity_failure`、`api_placeholders_unresolved`
+- case-plan 若仅含 API/Manual，用例执行会自动跳过 UI 服务可达性验证
+
+### 7) 对齐互联网标准 QA 流程（建议）
+
+1. **Test Planning / Monitoring / Control**（ISTQB）
+2. **Test Design + 文档标准化**（ISO/IEC/IEEE 29119-2 / 29119-3）
+3. **Implementation / Execution / Incident 报告**（ISTQB）
+4. **Verification 最低技术基线**（NIST SSDF + NISTIR 8397）
+5. **Web 安全专项测试**（OWASP WSTG）
+
+可在每次版本回归中执行：`计划 -> 设计 -> 执行 -> 缺陷分级 -> 回归 -> 退出准则`，并将产物统一落盘到 `.ptk/` 与 `docs/product/{version}/qa/`。
+
+详细落地清单见：`docs/qa-standards-playbook.md`
+
+---
+
+## 需求反馈回写（v3.4.0）
+
+auto-test 在 consolidate 后自动检测触发条件：
+
+- `missing_user_stories`
+- `missing_test_cases`
+- `repeat_guard_triggered > 0`
+
+满足任一条件时，自动生成：
+
+```text
+.ptk/state/requirement-feedback/{version}-{feature}.json
+docs/product/{version}/feedback/{feature}.json
+docs/product/{version}/feedback/{feature}.md
+docs/product/feedback/{version}-{feature}.json
+docs/product/feedback/{version}-{feature}.md
+```
+
+下一轮 `think/workflow` 需优先读取 feedback，并将其中 open-questions 注入输入。
+
+---
+
+## 统一记忆信封（v3.4.0）
+
+`remember/recall` 与 test memory 对齐统一元数据字段：
+
+- `memory_id`
+- `type`
+- `source_session_id`
+- `source`
+- `evidence_ref`
+- `confidence`
+- `tags`
+- `created_at`
+- `updated_at`
+
+迁移脚本：
+
+```bash
+python3 scripts/migrate_memory_v3.py --dry-run
+python3 scripts/migrate_memory_v3.py
+python3 scripts/migrate_memory_v3.py --rollback .ptk/backups/<backup_dir>
+```
+
+---
+
+## Team Runtime（file/tmux 兼容）
+
+统一命令入口：
+
+```bash
+./scripts/team_runtime.sh start --team <name> --runtime file|tmux|auto --task "..."
+./scripts/team_runtime.sh status --team <name>
+./scripts/team_runtime.sh resume --team <name>
+./scripts/team_runtime.sh shutdown --team <name> --terminal-status Pass|Blocked|Cancelled
+```
+
+双审查 gate（spec -> quality）：
+
+```bash
+./scripts/review_gate.sh --team <name> init
+./scripts/review_gate.sh --team <name> spec --status pass
+./scripts/review_gate.sh --team <name> quality --status pass
+./scripts/review_gate.sh --team <name> evaluate --critical-open 0 --high-open 0
+```
+
+团队报告：
+
+```bash
+./scripts/team_report.sh --team <name> --format both
 ```
 
 ---
@@ -347,11 +531,13 @@ docs/product/{version}/
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v3.4.0 | 2026-02-26 | strict 默认开启、blocked reason code 标准化、auto-test 需求反馈回写、team file/tmux 统一运行时、spec->quality 双审查 gate、max_fix_loops 终态阻断 |
+| v3.3.0 | 2026-02-26 | Product Toolkit 平台化文档基线（PRD/用户故事/测试用例） |
 | v3.2.2 | 2026-02-25 | 自动化测试增强：支持启动前端项目、按优先级选择 agent-browser/browser-use、保存测试记忆避免重复踩坑 |
 | v3.2.1 | 2026-02-25 | 扩展 ptk 关键词触发，支持中文关键词（自动测试/用户故事/冒烟/需求等） |
 | v3.2.0 | 2026-02-25 | 添加自动化测试 (auto-test) 子命令，支持 Web 端 agent-browser 自动化 |
 | v3.1.1 | 2026-02-25 | 添加 ptk 关键词触发机制（ptk think / ptk workflow 等） |
-| v3.1.0 | 2026-02-25 | 添加状态持久化系统(.ptk/)、Soft-Gate门控、记忆系统(remember/recall)、自动化测试(status面板) |
+| v3.1.0 | 2026-02-25 | 添加状态持久化系统(.ptk/)、门控机制、记忆系统(remember/recall)、自动化测试(status面板) |
 | v3.0.1 | 2026-02-25 | 添加版本演进与测试回归系统（自动 patch+1、用户故事继承、测试进度跟踪、演进总结）|
 | v3.0.0 | 2026-02-24 | 添加一键工作流、版本化输出配置、平台模板与版本配置 |
 | v2.6.0 | 2026-02-19 | 添加 Claude Team 多代理协作 |

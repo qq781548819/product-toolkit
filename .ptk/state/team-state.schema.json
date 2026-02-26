@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Team Runtime State Schema",
+  "description": "Unified state schema for Product Toolkit team runtime (file/tmux compatible)",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "team_name",
+    "runtime",
+    "status",
+    "current_phase",
+    "max_fix_loops",
+    "fix_loop_count",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "team_name": { "type": "string" },
+    "runtime": { "type": "string", "enum": ["file", "tmux"] },
+    "status": { "type": "string", "enum": ["active", "paused", "terminal"] },
+    "terminal_status": {
+      "type": "string",
+      "enum": ["Pass", "Blocked", "Cancelled", "Unknown"]
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": [
+        "team-plan",
+        "team-prd",
+        "team-exec",
+        "team-verify",
+        "team-fix",
+        "terminal"
+      ]
+    },
+    "phase_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["phase", "timestamp"],
+        "properties": {
+          "phase": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "task": { "type": "string" },
+    "max_fix_loops": { "type": "integer", "minimum": 1 },
+    "fix_loop_count": { "type": "integer", "minimum": 0 },
+    "workers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["worker_id", "status"],
+        "properties": {
+          "worker_id": { "type": "string" },
+          "status": { "type": "string", "enum": ["idle", "running", "waiting", "done", "failed", "stopped"] },
+          "pane_id": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "tmux": {
+      "type": "object",
+      "properties": {
+        "session_name": { "type": "string" },
+        "window_name": { "type": "string" }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Requirement Feedback Schema",
+  "description": "Feedback generated from automated test sessions and fed back to think/workflow open questions",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "source",
+    "signals",
+    "open_questions",
+    "actions"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "object",
+      "required": [
+        "session_id",
+        "version",
+        "feature",
+        "test_type",
+        "tool",
+        "status"
+      ],
+      "properties": {
+        "session_id": { "type": "string" },
+        "version": { "type": "string" },
+        "feature": { "type": "string" },
+        "test_type": { "type": "string" },
+        "tool": { "type": "string" },
+        "status": { "type": "string" }
+      }
+    },
+    "signals": {
+      "type": "object",
+      "properties": {
+        "missing_user_stories": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "missing_test_cases": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "repeat_guard_triggered": { "type": "integer", "minimum": 0 },
+        "blocked_reason_codes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "question",
+          "reason",
+          "priority",
+          "blocking",
+          "owner",
+          "status",
+          "source"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "question": { "type": "string" },
+          "reason": { "type": "string" },
+          "priority": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+          "blocking": { "type": "boolean" },
+          "owner": { "type": "string" },
+          "status": { "type": "string", "enum": ["open", "triaged", "resolved"] },
+          "close_criteria": { "type": "string" },
+          "source": { "type": "string" },
+          "evidence_ref": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "description", "target"],
+        "properties": {
+          "type": { "type": "string" },
+          "description": { "type": "string" },
+          "target": { "type": "string" },
+          "blocking": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

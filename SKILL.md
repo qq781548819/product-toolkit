@@ -3,7 +3,7 @@ name: product-toolkit
 description: Product toolkit for PM workflows (think/user-story/prd/test-case/workflow etc.) with think vNext hard-switch rules.
 ---
 
-# Product Toolkit v3.2.2
+# Product Toolkit v3.4.0
 
 提供产品经理工作流工具集：需求澄清、用户故事、PRD、测试用例、技术方案与发布清单。
 
@@ -21,6 +21,9 @@ description: Product toolkit for PM workflows (think/user-story/prd/test-case/wo
 ## 关键词触发（ptk 前缀）
 
 使用 `ptk` 前缀触发技能，避免与日常用语冲突：
+
+> 说明：`ptk ...` 属于**对话层魔法关键词**，不是 shell 命令。  
+> 在 Bash 工具中请执行实际脚本（如 `./scripts/auto_test.sh ...`），不要执行 `ptk ...`。
 
 | 关键词 | 技能 | 说明 |
 |--------|------|------|
@@ -83,14 +86,14 @@ description: Product toolkit for PM workflows (think/user-story/prd/test-case/wo
 | `/product-toolkit:roadmap` | 生成产品路线图 | `/product-toolkit:roadmap` |
 | `/product-toolkit:release [版本]` | 发布/上线检查清单 | `/product-toolkit:release v1.0.0` |
 | `/product-toolkit:analyze [对象]` | 竞品分析 | `/product-toolkit:analyze 抖音` |
-| `/product-toolkit:team [功能]` | 多代理协作 | `/product-toolkit:team 电商详情页` |
+| `/product-toolkit:team [功能]` | 多代理协作（file/tmux runtime） | `/product-toolkit:team 电商详情页` |
 | `/product-toolkit:workflow [功能]` | 一键产品工作流 | `/product-toolkit:workflow 电商收藏功能` |
 | `/product-toolkit:test-progress [版本]` | 测试进度记录 | `/product-toolkit:test-progress v1.0.0` |
 | `/product-toolkit:auto-test -v 版本 -f 功能` | 自动化 Web 测试 | `/product-toolkit:auto-test v1.0.0 -f 电商收藏` |
 | `/product-toolkit:evolution-summary [版本]` | 版本演进总结 | `/product-toolkit:evolution-summary v1.0.1` |
 | `/product-toolkit:save` | 保存会话状态到 .ptk/ | `/product-toolkit:save` |
 | `/product-toolkit:resume [session_id]` | 恢复会话状态 | `/product-toolkit:resume` |
-| `/product-toolkit:gate [阶段]` | Soft-Gate 门控检查 | `/product-toolkit:gate think` |
+| `/product-toolkit:gate [阶段]` | strict 默认门控检查 | `/product-toolkit:gate think` |
 | `/product-toolkit:remember [内容]` | 记忆项目知识 | `/product-toolkit:remember --insight 核心用户是Z世代` |
 | `/product-toolkit:recall [关键词]` | 检索项目记忆 | `/product-toolkit:recall 用户` |
 | `/product-toolkit:status` | 显示状态面板 | `/product-toolkit:status` |
@@ -214,12 +217,13 @@ v3.1.0 新增状态跨会话持久化功能：
 │   ├── think-progress.json    # think vNext 会话进度
 │   ├── workflow-state.yaml    # workflow 执行状态
 │   ├── version-history.json   # 版本演进历史
-│   └── test-progress.json    # 测试进度追踪
+│   ├── test-progress.json     # 测试进度追踪（版本/功能聚合）
+│   └── test-sessions/         # 自动化测试会话明细（start-record-stop-consolidate）
 ├── memory/
 │   ├── project-insights.json # 项目洞察（跨会话）
 │   ├── decisions.json         # 历史决策记录
 │   ├── vocabulary.json       # 领域术语表
-│   └── test-learnings.json   # 自动化测试踩坑记忆
+│   └── test-learnings.json   # 自动化测试踩坑记忆（signatures/playbooks/sessions）
 └── cache/
     └── templates/           # 模板缓存
 ```
@@ -243,19 +247,19 @@ v3.1.0 新增状态跨会话持久化功能：
 | 技能 | 说明 |
 |------|------|
 | `/product-toolkit:status` | 显示当前工作流状态 |
-| `/product-toolkit:gate` | Soft-Gate 门控检查 |
+| `/product-toolkit:gate` | strict 默认门控检查 |
 
 ---
 
-## Soft-Gate 门控机制
+## Gate（strict 默认）
 
-v3.1.0 引入柔性门控机制：
+v3.4.0 默认启用 strict 策略：
 
 ### 门控行为
 
-- **默认**: 阻止阶段流转，显示警告
-- **覆盖**: 用户可强制 `--force` 继续
-- **记录**: 强制覆盖时记录风险到下游
+- **默认**: 门控失败即 `Blocked`
+- **覆盖**: 可使用 `--force` 继续
+- **记录**: `--force` 必须记录风险
 
 ### 门控检查项
 
@@ -293,6 +297,44 @@ v3.1.0 新增自动化测试能力：
 ### 进度跟踪
 
 使用 `/product-toolkit:test-progress [版本]` 跟踪测试进度。
+
+### 需求反馈回写（新增）
+
+auto-test 在 consolidate 后会根据触发条件自动生成 feedback（missing_user_stories / missing_test_cases / repeat_guard）：
+
+- `.ptk/state/requirement-feedback/{version}-{feature}.json`
+- `docs/product/{version}/feedback/{feature}.md|json`
+- `docs/product/feedback/{version}-{feature}.md|json`
+
+下一轮 think/workflow 必须优先读取 feedback 并注入 open-questions。
+
+---
+
+## Team Runtime（M2）
+
+统一命令入口（file/tmux/auto）：
+
+```bash
+./scripts/team_runtime.sh start --team <name> --runtime file|tmux|auto
+./scripts/team_runtime.sh status --team <name>
+./scripts/team_runtime.sh resume --team <name>
+./scripts/team_runtime.sh shutdown --team <name> --terminal-status Pass|Blocked|Cancelled
+```
+
+双审查 Gate：
+
+```bash
+./scripts/review_gate.sh --team <name> init
+./scripts/review_gate.sh --team <name> spec --status pass
+./scripts/review_gate.sh --team <name> quality --status pass
+./scripts/review_gate.sh --team <name> evaluate --critical-open 0 --high-open 0
+```
+
+阶段报告：
+
+```bash
+./scripts/team_report.sh --team <name> --format both
+```
 
 ---
 
@@ -337,9 +379,11 @@ docs/product/{version}/
 
 ---
 
-**版本**: v3.2.2
+**版本**: v3.4.0
 
 **更新日志**:
+- v3.4.0: strict 默认策略、测试反馈回写、team file/tmux 统一运行时、spec->quality 双审查 gate、max_fix_loops 终态阻断
+- v3.3.0: Product Toolkit 平台化文档基线（PRD/US/QA）
 - v3.2.2: 自动化测试增强（支持启动前端、按优先级选择 agent-browser/browser-use、失败记忆沉淀防重复踩坑）
 - v3.1.0: 添加状态持久化系统 (.ptk/)、Soft-Gate门控、记忆系统、自动化测试
 - v3.0.1: 添加版本演进与测试回归系统（自动 patch+1、用户故事继承、测试进度跟踪、演进总结）

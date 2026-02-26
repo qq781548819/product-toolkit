@@ -11,6 +11,8 @@ description: Run automated Web tests with frontend startup, prioritized tool sel
 2. 按优先级选择浏览器工具（`agent-browser` → `browser-use`）
 3. 保存失败踩坑记忆，避免重复踩坑
 4. 优先使用 **agent-browser CLI 原生命令**（`open/snapshot/screenshot/errors`）做可验证测试
+5. 严格模式门禁：禁止“无用例通过”、禁止“US→TC 1:1 简化逃逸”
+6. 自动回写需求反馈：触发缺口时生成 requirement-feedback（供下一轮 think/workflow 消费）
 
 ## 使用方式
 
@@ -28,6 +30,7 @@ description: Run automated Web tests with frontend startup, prioritized tool sel
 | `--type` | `-t` | 测试类型: smoke/regression/full | 否 (默认: full) |
 | `--iterations` | `-i` | 最大迭代次数 | 否 (默认: 3) |
 | `--test-file` | - | 自定义测试用例文件路径 | 否 |
+| `--manual-results` | - | Manual 用例回填结果 JSON | 否 |
 | `--tool` | - | 指定工具: auto/agent-browser/browser-use | 否 (默认: auto) |
 | `--tool-priority` | - | 工具优先级列表（逗号分隔） | 否 (默认: agent-browser,browser-use) |
 | `--headed` | - | 可视化浏览器窗口模式（主要用于 agent-browser） | 否 |
@@ -38,6 +41,12 @@ description: Run automated Web tests with frontend startup, prioritized tool sel
 | `--no-frontend-auto-detect` | - | 禁用 package.json 自动识别前端启动命令与端口 | 否 |
 | `--no-frontend-start` | - | 禁止启动前端（仅测试已运行环境） | 否 |
 | `--memory-file` | - | 自定义测试记忆文件路径 | 否 |
+| `--api-base-url` | - | API 用例请求基准地址 | 否 (默认同 base URL) |
+| `--api-timeout` | - | API 请求超时秒数 | 否 (默认: 15) |
+| `--api-vars` | - | API 占位符变量（如 `id=1,code=ABC`） | 否 |
+| `--api-headers` | - | API 请求头（`;` 分隔） | 否 |
+| `--api-default-method` | - | API 默认方法 | 否 (默认: GET) |
+| `--no-api-require-expectation` | - | 允许 expectation 未推断时执行 API | 否 |
 | `--dry-run` | - | 模拟运行，不执行实际测试 | 否 |
 
 ## 测试类型
@@ -80,25 +89,40 @@ description: Run automated Web tests with frontend startup, prioritized tool sel
 
 ## 魔法关键词
 
-使用 `ptk auto-test` 触发：
+`ptk auto-test` 是 **对话触发词**（用于让模型路由到本技能），不是 shell 可执行命令。
+
+> ⚠️ 不要在 `Bash(...)` 里执行 `ptk auto-test ...`，否则会报 `command not found: ptk`。
+
+### 对话触发（非 Bash）
 
 ```bash
 ptk auto-test v1.0.0 -f 电商收藏功能
 ptk auto-test v1.0.0 -f 登录功能 -t smoke
 ```
 
+### Shell 执行（Bash 工具中应使用）
+
+```bash
+./scripts/auto_test.sh -v v1.0.0 -f 电商收藏功能 -t full
+```
+
 ## 测试流程
 
-1. **读取历史踩坑记忆**：从 `.ptk/memory/test-learnings.json` 提示风险
+1. **start**：创建测试会话（session id），读取历史踩坑记忆与 playbook
 2. **（可选）自动识别前端配置**：从 `package.json` 推断启动命令与端口
 3. **（可选）启动前端**：执行 `--frontend-cmd`（显式或自动识别）并等待 `--frontend-url`
 4. **选择自动化工具**：按 `--tool-priority` 选择首个可用工具
 5. **服务可达性验证**：用选中的 CLI 工具先验证基准 URL 可访问
-6. **解析测试用例**：从 test-case 文档提取 `SMK-/TC-` 用例并映射目标 URL
+   - 若本轮 case-plan 不包含 UI 用例（仅 API/Manual），自动跳过该步骤
+6. **record**：解析 test-case 文档（标题型 + 表格型），按 `US → TC` 顺序执行并记录事件流
+   - `agent-browser/browser-use`：直接自动执行
+   - `api`：自动发请求并按 expectation 判定
+   - `manual`：读取 `--manual-results` 回填；未回填即阻塞
 7. **执行测试并重试**：失败可按 `--iterations` 继续重跑
-8. **收集证据**：按用例输出日志、截图、快照/错误信息
-9. **写入进度与记忆**：更新 `.ptk/state/test-progress.json` + 失败记忆
-10. **生成汇总报告**
+8. **stop**：收集证据、计算覆盖率与缺口（缺失 US / 缺失 TC / 未执行 TC / 非自动化 TC），并执行 strict gate
+9. **consolidate**：写入 `.ptk/state/test-progress.json` + `.ptk/state/test-sessions/*.json` + 失败记忆
+10. **反馈回写**：触发 `missing_user_stories / missing_test_cases / repeat_guard`
+11. **生成汇总报告**
 
 ## agent-browser CLI 执行基线（参考 test-browser 命令实践）
 
@@ -142,9 +166,12 @@ agent-browser errors
 
 ```
 .ptk/memory/test-learnings.json
+.ptk/state/test-sessions/<session-id>.json
+.ptk/state/requirement-feedback/<version>-<feature>.json
 ```
 
-记录项包含：`feature`、`test_case`、`signature`、`suggestion`、`count`、`first_seen/last_seen`。
+记录项包含：`signatures`、`playbooks`、`sessions`（兼容保留 `pitfalls`）。
+并输出 `gaps.blocked_reason_codes`（machine-readable）。
 
 ## 输出示例
 

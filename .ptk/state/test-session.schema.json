@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Test Session Schema",
+  "description": "SimpleMem-Cross style test session lifecycle record",
+  "type": "object",
+  "required": ["schema_version", "session_id", "meta", "lifecycle", "plan", "events", "results", "coverage", "strict", "gaps", "memory_delta"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "session_id": { "type": "string" },
+    "meta": {
+      "type": "object",
+      "required": ["version", "feature", "test_type", "tool", "base_url"],
+      "properties": {
+        "version": { "type": "string" },
+        "feature": { "type": "string" },
+        "test_type": { "type": "string" },
+        "tool": { "type": "string" },
+        "base_url": { "type": "string" }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["started_at", "stopped_at", "consolidated_at", "status", "model"],
+      "properties": {
+        "started_at": { "type": "string", "format": "date-time" },
+        "stopped_at": { "type": "string", "format": "date-time" },
+        "consolidated_at": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["passed", "failed", "blocked"] },
+        "model": { "type": "string" }
+      }
+    },
+    "plan": {
+      "type": "object",
+      "required": ["source_test_file", "ordered_cases"],
+      "properties": {
+        "source_test_file": { "type": "string" },
+        "ordered_cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["order", "us_id", "case_id"],
+            "properties": {
+              "order": { "type": "integer", "minimum": 1 },
+              "us_id": { "type": "string" },
+              "case_id": { "type": "string" },
+              "target_hint": { "type": "string" },
+              "ac_ids": { "type": "array", "items": { "type": "string" } },
+              "execution_mode": { "type": "string" },
+              "method_hint": { "type": "string" },
+              "expectation_hint": { "type": "string" },
+              "source_format": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "kind"],
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "kind": { "type": "string" },
+          "case_id": { "type": ["string", "null"] },
+          "status": { "type": ["string", "null"] },
+          "message": { "type": ["string", "null"] },
+          "data": { "type": "object" }
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "required": ["cases", "attempts"],
+      "properties": {
+        "cases": { "type": "array", "items": { "type": "object" } },
+        "attempts": { "type": "array", "items": { "type": "object" } }
+      }
+    },
+    "coverage": { "type": "object" },
+    "strict": {
+      "type": "object",
+      "properties": {
+        "declared_vs_parsed_match": { "type": "boolean" },
+        "declared_total_cases": { "type": ["integer", "null"], "minimum": 0 },
+        "parsed_total_cases": { "type": "integer", "minimum": 0 },
+        "suspicious_one_to_one": { "type": "boolean" },
+        "us_completeness_passed": { "type": "boolean" },
+        "non_automatable_pending": { "type": "integer", "minimum": 0 },
+        "completeness_passed": { "type": "boolean" }
+      }
+    },
+    "gaps": {
+      "type": "object",
+      "properties": {
+        "missing_user_stories": { "type": "array", "items": { "type": "string" } },
+        "missing_test_cases": { "type": "array", "items": { "type": "string" } },
+        "unexecuted_test_cases": { "type": "array", "items": { "type": "string" } },
+        "failed_test_cases": { "type": "array", "items": { "type": "string" } },
+        "blocked_test_cases": { "type": "array", "items": { "type": "string" } },
+        "blocked_reason_counts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "blocked_reason_codes": { "type": "array", "items": { "type": "string" } },
+        "non_automatable_test_cases": { "type": "array", "items": { "type": "string" } },
+        "declared_count_mismatches": { "type": "array", "items": { "type": "object" } }
+      }
+    },
+    "memory_delta": {
+      "type": "object",
+      "required": ["new_signatures", "updated_signatures", "playbook_reused", "repeat_guard_triggered"],
+      "properties": {
+        "new_signatures": { "type": "integer", "minimum": 0 },
+        "updated_signatures": { "type": "integer", "minimum": 0 },
+        "playbook_reused": { "type": "integer", "minimum": 0 },
+        "repeat_guard_triggered": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

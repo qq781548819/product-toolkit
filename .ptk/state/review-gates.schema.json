@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Review Gates Schema",
+  "description": "Spec -> Quality review gate state for team runtime",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "team_name",
+    "created_at",
+    "updated_at",
+    "spec_review",
+    "quality_review",
+    "policy"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "team_name": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "spec_review": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "enum": ["pending", "pass", "blocked"] },
+        "reviewer": { "type": "string" },
+        "evidence_ref": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "quality_review": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "enum": ["pending", "pass", "blocked"] },
+        "reviewer": { "type": "string" },
+        "evidence_ref": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["spec_then_quality", "critical_high_blocking"],
+      "properties": {
+        "spec_then_quality": { "type": "boolean" },
+        "critical_high_blocking": { "type": "boolean" },
+        "max_fix_loops": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["Pass", "Blocked"] },
+        "reason_codes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "critical_open": { "type": "integer", "minimum": 0 },
+        "high_open": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

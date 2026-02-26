@@ -1,50 +1,128 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Test Learnings Schema",
-  "description": "Persistent pitfalls memory for automated browser testing",
+  "description": "SimpleMem-Cross lifecycle memory for automated testing",
   "type": "object",
-  "required": ["version", "pitfalls", "updated_at"],
+  "required": ["version", "updated_at", "signatures", "playbooks", "sessions"],
   "properties": {
-    "version": {
-      "type": "string"
-    },
-    "updated_at": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "pitfalls": {
+    "version": { "type": "string" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "signatures": {
       "type": "array",
       "items": {
         "type": "object",
         "required": [
-          "feature",
-          "test_case",
+          "signature_id",
           "signature",
-          "suggestion",
+          "category",
           "count",
           "first_seen",
           "last_seen"
         ],
         "properties": {
-          "feature": { "type": "string" },
-          "version": { "type": "string" },
-          "test_type": { "type": "string" },
-          "test_case": { "type": "string" },
-          "tool": { "type": "string" },
+          "memory_id": { "type": "string" },
+          "type": { "type": "string", "default": "test_signature" },
+          "source_session_id": { "type": "string" },
+          "signature_id": { "type": "string" },
           "signature": { "type": "string" },
-          "suggestion": { "type": "string" },
-          "snippet": { "type": "string" },
-          "count": { "type": "integer", "minimum": 1 },
-          "first_seen": {
-            "type": "string",
-            "format": "date-time"
+          "category": { "type": "string" },
+          "source": { "type": "string" },
+          "evidence_ref": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
           },
-          "last_seen": {
-            "type": "string",
-            "format": "date-time"
-          }
+          "suggestion": { "type": "string" },
+          "features": { "type": "array", "items": { "type": "string" } },
+          "test_cases": { "type": "array", "items": { "type": "string" } },
+          "last_snippet": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "count": { "type": "integer", "minimum": 0 },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "first_seen": { "type": "string", "format": "date-time" },
+          "last_seen": { "type": "string", "format": "date-time" }
         }
       }
+    },
+    "playbooks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "playbook_id",
+          "signature_id",
+          "steps",
+          "success_count",
+          "fail_count",
+          "confidence"
+        ],
+        "properties": {
+          "memory_id": { "type": "string" },
+          "type": { "type": "string", "default": "test_playbook" },
+          "source_session_id": { "type": "string" },
+          "playbook_id": { "type": "string" },
+          "signature_id": { "type": "string" },
+          "name": { "type": "string" },
+          "steps": { "type": "array", "items": { "type": "string" } },
+          "source": { "type": "string" },
+          "evidence_ref": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "auto_apply": { "type": "boolean" },
+          "success_count": { "type": "integer", "minimum": 0 },
+          "fail_count": { "type": "integer", "minimum": 0 },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "last_used": { "type": "string" }
+        }
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "session_id",
+          "version",
+          "feature",
+          "status",
+          "started_at",
+          "stopped_at"
+        ],
+        "properties": {
+          "memory_id": { "type": "string" },
+          "type": { "type": "string", "default": "test_session" },
+          "source_session_id": { "type": "string" },
+          "session_id": { "type": "string" },
+          "version": { "type": "string" },
+          "feature": { "type": "string" },
+          "test_type": { "type": "string" },
+          "status": { "type": "string", "enum": ["passed", "failed", "blocked"] },
+          "source": { "type": "string" },
+          "evidence_ref": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "started_at": { "type": "string", "format": "date-time" },
+          "stopped_at": { "type": "string", "format": "date-time" },
+          "passed": { "type": "integer", "minimum": 0 },
+          "failed": { "type": "integer", "minimum": 0 },
+          "blocked": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "pitfalls": {
+      "description": "Backward compatibility with v1",
+      "type": "array",
+      "items": { "type": "object" }
     }
   }
 }

@@ -4,7 +4,11 @@
 *.tmp
 .omc/
 .ptk/evidence/
+.ptk/handoffs/
+.ptk/state/team/
 .ptk/state/*.json
+.ptk/state/**/*.json
 .ptk/memory/*.json
 !.ptk/state/*.schema.json
+!.ptk/state/**/*.schema.json
 !.ptk/memory/*.schema.json
