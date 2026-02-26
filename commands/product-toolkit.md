@@ -29,6 +29,7 @@ description: 通用产品经理工具集 - v3.5.0（strict 默认 + team runtime
 | `/product-toolkit:test-case` | 测试用例 + AC→TC | `docs/product/{version}/qa/test-cases/` |
 | `/product-toolkit:auto-test` | strict 自动测试生命周期 | `.ptk/state/test-sessions/` + `docs/product/{version}/qa/test-progress/` |
 | `/product-toolkit:test-progress` | 测试进度汇总 | `.ptk/state/test-progress.json` |
+| `/product-toolkit:work` | workflow 别名（兼容 Claude 命令提示） | `docs/product/{version}/SUMMARY.md` |
 | `/product-toolkit:workflow` | 全链路编排 + Gate | `docs/product/{version}/SUMMARY.md` |
 | `/product-toolkit:team` | 多代理协作 | `docs/product/{version}/` + `.ptk/state/team/` |
 | `/product-toolkit:ralph-bridge` | Ralph 长任务桥接（omx/omc + verify 闭环） | `.ptk/state/bridge/<team>/ralph-link.json` |

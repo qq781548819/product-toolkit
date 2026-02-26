@@ -29,6 +29,7 @@ description: Product toolkit for PM workflows (think/user-story/prd/test-case/wo
 |--------|------|------|
 | **基础技能** | | |
 | `ptk think` | `/product-toolkit:think` | 产品思考 vNext |
+| `ptk work` | `/product-toolkit:work` | 一键工作流（workflow 别名） |
 | `ptk workflow` | `/product-toolkit:workflow` | 一键工作流 |
 | `ptk save` | `/product-toolkit:save` | 保存会话 |
 | `ptk resume` | `/product-toolkit:resume` | 恢复会话 |
@@ -89,6 +90,7 @@ description: Product toolkit for PM workflows (think/user-story/prd/test-case/wo
 | `/product-toolkit:analyze [对象]` | 竞品分析 | `/product-toolkit:analyze 抖音` |
 | `/product-toolkit:team [功能]` | 多代理协作（file/tmux runtime） | `/product-toolkit:team 电商详情页` |
 | `/product-toolkit:ralph-bridge [功能]` | Ralph 长任务桥接（omx/omc + verify 闭环） | `/product-toolkit:ralph-bridge v3.5.0 ralph-bridge` |
+| `/product-toolkit:work [功能]` | workflow 别名（兼容 Claude 输入习惯） | `/product-toolkit:work 电商收藏功能` |
 | `/product-toolkit:workflow [功能]` | 一键产品工作流 | `/product-toolkit:workflow 电商收藏功能` |
 | `/product-toolkit:test-progress [版本]` | 测试进度记录 | `/product-toolkit:test-progress v1.0.0` |
 | `/product-toolkit:auto-test -v 版本 -f 功能` | 自动化 Web 测试 | `/product-toolkit:auto-test v1.0.0 -f 电商收藏` |

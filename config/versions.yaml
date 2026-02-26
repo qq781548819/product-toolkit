@@ -1,9 +1,20 @@
 # Product Toolkit Version Configuration
 
-current_version: "3.5.0"
+current_version: "3.5.1"
 
 # Version history
 versions:
+  - version: "3.5.1"
+    date: "2026-02-26"
+    status: "released"
+    features:
+      - name: Claude 子命令兼容修复
+        type: patch
+        description: 新增 /product-toolkit:work 作为 workflow 别名，修复 Claude 子命令提示缺失
+    owner: "PM"
+    changes:
+      - description: 新增 skills/work/SKILL.md 并更新 README/SKILL/commands 索引
+        breaking: false
   - version: "3.5.0"
     date: "2026-02-26"
     status: "released"

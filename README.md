@@ -387,6 +387,10 @@ export PTK_BRIDGE_RUNTIME_PREFERENCE=omc   # 或 omx
 ### 完整版本迭代工作流
 
 ```text
+/product-toolkit:work [功能]      # workflow 别名（推荐给 Claude 快捷输入）
+    ↓
+/product-toolkit:workflow [功能]  # 等价执行
+    ↓
 /product-toolkit:design [功能] (可选)
     ↓
 /product-toolkit:jtbd [功能] (可选)
@@ -624,6 +628,7 @@ docs/product/{version}/
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v3.5.1 | 2026-02-26 | Claude 命令兼容：新增 `/product-toolkit:work`（workflow 别名），修复子命令提示缺失问题 |
 | v3.5.0 | 2026-02-26 | Ralph Bridge：新增长任务桥接命令（start/resume/status/finalize）、.ptk/state/bridge 映射状态、verify 三段式验收编排 |
 | v3.4.0 | 2026-02-26 | strict 默认开启、blocked reason code 标准化、auto-test 需求反馈回写、team file/tmux 统一运行时、spec->quality 双审查 gate、max_fix_loops 终态阻断 |
 | v3.3.0 | 2026-02-26 | Product Toolkit 平台化文档基线（PRD/用户故事/测试用例） |
