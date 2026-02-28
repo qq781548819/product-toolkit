@@ -16,6 +16,7 @@ description: 通用产品经理工具集 - v3.7.0（CLI 统一入口 + Scope Gua
 - **Strict 默认开启**（门控阻断优先）
 - 允许 `--force`，但必须记录风险
 - open-questions 反馈落点：`.ptk/state/requirement-feedback` + `docs/product/feedback`
+- 版本强一致：CLI/插件/文档版本必须同步，不允许版本偏移
 
 ---
 

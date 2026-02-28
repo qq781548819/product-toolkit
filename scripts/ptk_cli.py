@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PTK v3.7.9 lightweight CLI entry for status/run/report/doctor flows."""
+"""PTK v3.7.0 lightweight CLI entry for status/run/report/doctor flows."""
 
 from __future__ import annotations
 
@@ -15,7 +15,8 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_VERSION = "v3.7.0"
+TOOLKIT_VERSION = "3.7.0"
+DEFAULT_VERSION = f"v{TOOLKIT_VERSION}"
 RISK_HIGH_KEYWORDS = (
     "重写",
     "rewrite",
@@ -682,6 +683,49 @@ def command_doctor(args: argparse.Namespace, ctx: Context) -> int:
     def add_check(name: str, status: str, detail: str, recommendation: str = "") -> None:
         checks.append({"name": name, "status": status, "detail": detail, "recommendation": recommendation})
 
+    expected_version = TOOLKIT_VERSION
+    expected_product_version = f"v{TOOLKIT_VERSION}"
+    version_issues: list[str] = []
+
+    if DEFAULT_VERSION != expected_product_version:
+        version_issues.append(f"DEFAULT_VERSION={DEFAULT_VERSION}")
+
+    plugin_json = read_json(ctx.root / ".claude-plugin" / "plugin.json", {})
+    if not isinstance(plugin_json, dict):
+        version_issues.append("plugin.json:invalid")
+    else:
+        plugin_version = str(plugin_json.get("version", "")).strip()
+        if plugin_version != expected_version:
+            version_issues.append(f"plugin.json={plugin_version or 'missing'}")
+
+    marketplace_json = read_json(ctx.root / ".claude-plugin" / "marketplace.json", {})
+    marketplace_version = ""
+    if isinstance(marketplace_json, dict):
+        plugins = marketplace_json.get("plugins")
+        if isinstance(plugins, list):
+            for item in plugins:
+                if isinstance(item, dict) and item.get("name") == "product-toolkit":
+                    marketplace_version = str(item.get("version", "")).strip()
+                    break
+    if not marketplace_version:
+        version_issues.append("marketplace.json=missing")
+    elif marketplace_version != expected_version:
+        version_issues.append(f"marketplace.json={marketplace_version}")
+
+    if version_issues:
+        add_check(
+            "version_consistency",
+            "FAIL",
+            f"expected={expected_version}; drift={', '.join(version_issues)}",
+            "统一 CLI/插件/文档元信息版本，避免版本幻视漂移",
+        )
+    else:
+        add_check(
+            "version_consistency",
+            "PASS",
+            f"cli={expected_version}, default_product={DEFAULT_VERSION}, plugin={expected_version}, marketplace={expected_version}",
+        )
+
     user_story_rel = str(ctx.user_story_path.relative_to(ctx.root))
     if ctx.user_story_path.exists():
         add_check("user_story_exists", "PASS", user_story_rel)
@@ -822,8 +866,8 @@ def command_doctor(args: argparse.Namespace, ctx: Context) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="ptk", description="PTK unified CLI entry (v3.7.9).")
-    parser.add_argument("--version", default=DEFAULT_VERSION, help="Target product version (default: v3.7.0)")
+    parser = argparse.ArgumentParser(prog="ptk", description=f"PTK unified CLI entry (v{TOOLKIT_VERSION}).")
+    parser.add_argument("--version", default=DEFAULT_VERSION, help=f"Target product version (default: {DEFAULT_VERSION})")
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_status = sub.add_parser("status", help="Show team/gate/bridge/test status")

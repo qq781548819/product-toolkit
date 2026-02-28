@@ -136,7 +136,9 @@ class PtkCliTests(unittest.TestCase):
         payload = json.loads(proc.stdout)
         statuses = {item["status"] for item in payload.get("checks", [])}
         self.assertTrue(statuses.issubset({"PASS", "WARN", "FAIL", "UNKNOWN"}))
-        self.assertIn("events_integrity", {item["name"] for item in payload.get("checks", [])})
+        check_names = {item["name"] for item in payload.get("checks", [])}
+        self.assertIn("events_integrity", check_names)
+        self.assertIn("version_consistency", check_names)
 
 
 if __name__ == "__main__":

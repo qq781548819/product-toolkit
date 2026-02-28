@@ -28,6 +28,7 @@ description: Product toolkit for PM workflows (think/user-story/prd/test-case/wo
 8. gate 可使用 `scripts/validate_terminal_artifacts.py`（或 `scripts/check_terminal_artifacts.sh`）执行终态证据强校验（含架构治理项与一致性校验）。
 9. OMC/OMX 为可选执行器，非入侵 PTK 生命周期规划职责。
 10. `ralph-bridge` 保留为兼容/高级路径，不再作为默认主入口。
+11. 版本元信息强一致：CLI 版本、插件版本、文档版本必须同步；不允许漂移。
 
 ---
 
